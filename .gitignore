@@ -1,0 +1,49 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.ipr
+*.iml
+*.iws
+out/
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode/
+.factorypath
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# Quarkus
+.quarkus/
+
+# Local environment
+.env
+
+# Native build artifacts
+*-runner
+*-runner.exe
+
+# Logs
+*.log
+logs/
+
+# Local development
+application-local.properties
+application-local.yml
