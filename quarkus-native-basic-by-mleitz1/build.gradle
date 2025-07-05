@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'io.quarkus' version "${quarkusPluginVersion}"
+}
+
+afterEvaluate {
+    def isNative = System.getProperty('quarkus.native.enabled') == 'true'
+
+    println "🔨 Build Mode: ${isNative ? 'NATIVE BINARY' : 'JAR'}"
+    if (isNative) {
+        println "📦 Output: ${rootProject.name}-${version}-runner"
+        println "🚀 Native Build Config: Enabled=${System.getProperty('quarkus.native.enabled')}, Container=${System.getProperty('quarkus.native.container-build')}, Remote=${System.getProperty('quarkus.native.remote-container-build')}, BuilderImage=${System.getProperty('quarkus.native.builder-image')}"
+    } else {
+        println "📦 Output: ${rootProject.name}-${version}.jar"
+    }
+}
+
+group = 'org.example'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+// Get all source files from this project and bundle them up in
+// *-sources.jar
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+    }
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
+    implementation 'io.quarkus:quarkus-arc'
+
+    // Native image support
+    implementation 'io.quarkus:quarkus-container-image-docker'
+
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+}
+
+tasks.named('quarkusBuild') {
+    doFirst {
+        println "🔥 Starting Quarkus Native Build for ${rootProject.name}-${version}-runner"
+        println "⚙️  Java Version: ${System.getProperty('java.version')}"
+        println "⚙️  GraalVM Home: ${System.getProperty('java.home')}"
+        println "⚙️  Memory Config: ${project.findProperty('quarkus.native.native-image-xmx')}"
+    }
+}
+
+// Custom task to display build settings
+task displayBuildSettings {
+    doLast {
+        println """
+        =========================================================
+        QUARKUS NATIVE BUILD CONFIGURATION
+        =========================================================
+        ⚙️  Quarkus Version: ${quarkusPlatformVersion}
+        ⚙️  Java Version: ${java.sourceCompatibility}
+        ⚙️  Native Image: ${System.getProperty('quarkus.native.enabled')}
+        ⚙️  Container Build: ${System.getProperty('quarkus.native.container-build')}
+
+        📦  Build Output: ${rootProject.name}-${version}.jar
+
+        This build will produce:
+        - Native executable for your current platform
+        - hello world: curl localhost:8080/hello
+
+        For cross-platform builds (Raspberry Pi), you'll need to:
+        - Set appropriate GraalVM for the target platform
+        - Configure additional build arguments as needed
+        =========================================================
+        """
+    }
+}
+
+// Hook the display task to the build process
+build.dependsOn displayBuildSettings
