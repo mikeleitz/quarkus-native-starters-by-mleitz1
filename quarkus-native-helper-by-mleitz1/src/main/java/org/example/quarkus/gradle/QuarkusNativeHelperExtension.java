@@ -19,14 +19,6 @@ public abstract class QuarkusNativeHelperExtension {
      */
     public QuarkusNativeHelperExtension(Project project) {
         this.project = project;
-
-        // Set default values
-        getNativeEnabled().convention(true);
-        getContainerBuild().convention(false);
-        getRemoteContainerBuild().convention(false);
-        getNativeOnly().convention(false);
-        getBuilderImage().convention("quay.io/quarkus/ubi-quarkus-native-image:22.0.1-java17");
-        getNativeImageXmx().convention("4g");
     }
 
     /**
@@ -64,4 +56,11 @@ public abstract class QuarkusNativeHelperExtension {
      * Default: 4g
      */
     public abstract Property<String> getNativeImageXmx();
+
+    /**
+     * Whether to validate the native environment before building.
+     * When enabled, the build will fail if GraalVM/Mandrel and native-image are not available.
+     * Default: true
+     */
+    public abstract Property<Boolean> getValidateNativeEnvironment();
 }

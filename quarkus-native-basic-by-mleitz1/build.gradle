@@ -2,25 +2,19 @@ plugins {
     id 'java'
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
+    id 'org.example.quarkus-native-helper'
 }
 
-// Import native build detection utilities
-apply from: 'gradle/native-detection.gradle'
-
-// Configure build mode (native-only)
-configureNativeBuild()
+// Configure Quarkus Native Helper
+quarkusNativeHelper {
+    nativeEnabled = true
+    nativeOnly = true
+    validateNativeEnvironment = true
+}
 
 afterEvaluate {
-    def jvmType = getNativeJVMType()
-    println "🔍 Native Build Environment:"
-    println "   GraalVM: ${isGraalVM() ? '✅ Detected' : '❌ Not detected'}"
-    println "   Mandrel: ${isMandrel() ? '✅ Detected' : '❌ Not detected'}"
-    println "   Native Capable JVM: ${isNativeCapableJVM() ? '✅ ' + jvmType : '❌ Not detected'}"
-    println "   Native Image: ${isNativeImageAvailable() ? '✅ Available' : '❌ Not available'}"
-    println "   Java Vendor: ${System.getProperty('java.vendor')}"
-    println "   Java Runtime: ${System.getProperty('java.runtime.name')}"
-    println "   Java VM: ${System.getProperty('java.vm.name')}"
-    println "   Java Home: ${System.getProperty('java.home')}"
+    // Use the plugin's task to display native environment information
+    tasks.checkNativeEnvironment.execute()
 
     println "🔥 Build Mode: NATIVE BINARY (ONLY)"
     println "📦 Output: ${rootProject.name}-${version}-runner"
@@ -67,35 +61,28 @@ dependencies {
 
 tasks.named('quarkusBuild') {
     doFirst {
-        def jvmType = getNativeJVMType()
         println "🔥 Starting Quarkus Native Build for ${rootProject.name}-${version}-runner"
         println "⚙️  Java Version: ${System.getProperty('java.version')}"
-        println "⚙️  Native JVM Type: ${jvmType}"
         println "⚙️  Java Home: ${System.getProperty('java.home')}"
         println "⚙️  Memory Config: ${project.findProperty('quarkus.native.native-image-xmx')}"
         println "⚙️  Build Args: ${project.findProperty('quarkus.native.additionalBuildArgs')}"
 
-        // Additional native image validation before build
-        if (!isNativeImageAvailable()) {
-            throw new GradleException("Native image tool not found. Cannot proceed with native build.")
-        }
+        // The plugin will handle native environment validation
     }
 }
 
 // Custom task to display build settings
 task displayBuildSettings {
     doLast {
-        def jvmType = getNativeJVMType()
+        // Use the plugin's task to display native build configuration
+        tasks.displayNativeBuildConfig.execute()
+
         println """
         =========================================================
         QUARKUS NATIVE-ONLY BUILD CONFIGURATION
         =========================================================
         ⚙️  Quarkus Version: ${quarkusPlatformVersion}
         ⚙️  Java Version: ${java.sourceCompatibility}
-        ⚙️  Native JVM: ${isNativeCapableJVM() ? '✅ ' + jvmType : '❌ Not detected'}
-        ⚙️  GraalVM: ${isGraalVM() ? '✅ Detected' : '❌ Not detected'}
-        ⚙️  Mandrel: ${isMandrel() ? '✅ Detected' : '❌ Not detected'}
-        ⚙️  Native Image: ${isNativeImageAvailable() ? '✅ Available' : '❌ Not available'}
         ⚙️  Build Mode: NATIVE BINARY (EXCLUSIVE)
         ⚙️  Container Build: ${System.getProperty('quarkus.native.container-build')}
 
@@ -107,7 +94,6 @@ task displayBuildSettings {
         - Low memory footprint (< 50MB)
         - No JVM required for execution
 
-        Native JVM: ${jvmType}
         Test endpoint: curl localhost:8080/hello
         =========================================================
         """
@@ -117,63 +103,8 @@ task displayBuildSettings {
 // Hook the display task to the build process
 build.dependsOn displayBuildSettings
 
-// Add task to check native build environment
-task checkNativeEnvironment {
-    doLast {
-        def jvmType = getNativeJVMType()
-        def detailedInfo = getDetailedJVMInfo()
-
-        println "🔍 Native Build Environment Check:"
-        println "   Current JVM: ${detailedInfo.vendor} ${detailedInfo.javaVersion}"
-        println "   Runtime Name: ${detailedInfo.runtime}"
-        println "   VM Name: ${detailedInfo.vmName}"
-        println "   VM Version: ${detailedInfo.vmVersion}"
-        println "   Java Home: ${detailedInfo.javaHome}"
-        println "   Mandrel in Path: ${detailedInfo.mandrelInPath}"
-        println "   GraalVM: ${isGraalVM() ? '✅ Detected' : '❌ Not detected'}"
-        println "   Mandrel: ${isMandrel() ? '✅ Detected' : '❌ Not detected'}"
-        println "   Native Capable: ${isNativeCapableJVM() ? '✅ ' + jvmType : '❌ Not detected'}"
-        println "   Native Image: ${isNativeImageAvailable() ? '✅ Available' : '❌ Not available'}"
-
-        // Show release file content for debugging
-        println "\n📄 Release File Content:"
-        println detailedInfo.releaseContent
-
-        // Check native-image version if available
-        if (isNativeImageAvailable()) {
-            try {
-                def process = 'native-image --version'.execute()
-                process.waitFor()
-                if (process.exitValue() == 0) {
-                    println "\n🔧 Native Image Version:"
-                    process.text.split('\n').each { line ->
-                        if (line.trim()) {
-                            println "     ${line.trim()}"
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                println "\n🔧 Native Image Version: Could not determine"
-            }
-        }
-
-        if (!isNativeCapableJVM() || !isNativeImageAvailable()) {
-            println "\n💡 To enable native builds:"
-            println "   Option 1 - GraalVM:"
-            println "     1. Install GraalVM from https://www.graalvm.org/downloads/"
-            println "     2. Set JAVA_HOME to point to GraalVM installation"
-            println "     3. Install native-image: gu install native-image"
-            println "   Option 2 - Mandrel:"
-            println "     1. Install Mandrel from https://github.com/graalvm/mandrel/releases"
-            println "     2. Set JAVA_HOME to point to Mandrel installation"
-            println "     3. native-image is included with Mandrel"
-            println "   4. Verify: native-image --version"
-            println "\n⚠️  This project requires GraalVM or Mandrel with native-image for building."
-        } else {
-            println "\n🎉 Native build environment is ready with ${jvmType}!"
-        }
-    }
-}
+// Use the plugin's checkNativeEnvironment task
+// The task is already defined by the plugin
 
 // Add task to verify native executable after build
 task verifyNativeExecutable {
@@ -185,7 +116,6 @@ task verifyNativeExecutable {
             println "   📁 Location: ${nativeExecutable.absolutePath}"
             println "   📏 Size: ${String.format('%.2f MB', nativeExecutable.length() / 1024.0 / 1024.0)}"
             println "   🚀 Run with: ./${nativeExecutable.name}"
-            println "   🏗️  Built with: ${getNativeJVMType()}"
         } else {
             println "❌ Native executable not found at expected location"
         }
@@ -202,8 +132,13 @@ task buildForRaspberryPi {
 
     doFirst {
         System.setProperty('quarkus.profile', 'raspberry')
-        System.setProperty('quarkus.native.container-build', 'true')
-        System.setProperty('quarkus.native.container-runtime', 'docker')
+
+        // Configure the plugin for container build
+        quarkusNativeHelper {
+            containerBuild = true
+            builderImage = "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:22.3-java17"
+        }
+
         println "🔥 Building for Raspberry Pi (ARM64) using container build..."
         println "🐳 Using Mandrel builder image for ARM64 compatibility"
     }
