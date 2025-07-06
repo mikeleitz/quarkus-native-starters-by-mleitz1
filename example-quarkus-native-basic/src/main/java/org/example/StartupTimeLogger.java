@@ -1,4 +1,4 @@
-package org.example;
+package com.mleitz1.quarkus;
 
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;

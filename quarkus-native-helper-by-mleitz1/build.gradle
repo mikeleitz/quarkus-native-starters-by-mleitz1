@@ -4,7 +4,7 @@ plugins {
     id 'idea'
 }
 
-group = 'org.example'
+group = 'com.mleitz1.quarkus'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
@@ -37,8 +37,8 @@ dependencies {
 gradlePlugin {
     plugins {
         quarkusNativeHelper {
-            id = 'org.example.quarkus-native-helper'
-            implementationClass = 'org.example.quarkus.gradle.QuarkusNativeHelperPlugin'
+            id = 'com.mleitz1.quarkus.quarkus-native-helper'
+            implementationClass = 'com.mleitz1.quarkus.gradle.QuarkusNativeHelperPlugin'
         }
     }
 }

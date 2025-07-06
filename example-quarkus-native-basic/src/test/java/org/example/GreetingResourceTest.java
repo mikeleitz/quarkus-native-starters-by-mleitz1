@@ -1,4 +1,4 @@
-package org.example;
+package com.mleitz1.quarkus;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;

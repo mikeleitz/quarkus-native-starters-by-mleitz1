@@ -1,4 +1,4 @@
-package org.example.quarkus.gradle;
+package com.mleitz1.quarkus.gradle;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;

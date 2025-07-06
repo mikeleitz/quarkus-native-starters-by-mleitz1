@@ -1,4 +1,4 @@
-package org.example;
+package com.mleitz1.quarkus;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

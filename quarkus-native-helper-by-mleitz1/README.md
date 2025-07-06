@@ -15,7 +15,7 @@ A Gradle plugin that helps make it easier to configure and build native executab
 
 ```gradle
 plugins {
-    id 'org.example.quarkus-native-helper' version '0.1.0-SNAPSHOT'
+    id 'com.mleitz1.quarkus.quarkus-native-helper' version '0.1.0-SNAPSHOT'
 }
 ```
 

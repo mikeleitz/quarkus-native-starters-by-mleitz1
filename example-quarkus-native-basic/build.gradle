@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
     // Commented out for multi-project build from root
-    // id 'org.example.quarkus-native-helper'
+    // id 'com.mleitz1.quarkus.quarkus-native-helper'
 }
 
 // Configure Quarkus Native Helper
@@ -25,7 +25,7 @@ afterEvaluate {
     println "🚀 Container Build: ${System.getProperty('quarkus.native.container-build')}"
 }
 
-group = 'org.example'
+group = 'com.mleitz1.quarkus'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
