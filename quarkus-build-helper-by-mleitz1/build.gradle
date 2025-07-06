@@ -5,18 +5,11 @@ plugins {
 }
 
 group = 'com.mleitz1.quarkus'
-version = '0.1.0-SNAPSHOT'
+version = '0.1.0'
 description = 'A diagnostic plugin to help troubleshoot Quarkus builds including Quarkus native'
 
 repositories {
     mavenCentral()
-    gradlePluginPortal()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
-    maven {
-        url = uri("https://repository.jboss.org/nexus/content/groups/public/")
-    }
 }
 
 dependencies {
@@ -33,14 +26,19 @@ dependencies {
 gradlePlugin {
     plugins {
         quarkusBuildHelper {
-            id = 'com.mleitz1.quarkus.gradle.quarkus-build-helper'
+            id = 'com.mleitz1.quarkus.quarkus-build-helper'
             implementationClass = 'com.mleitz1.quarkus.gradle.QuarkusBuildHelperPlugin'
+
         }
     }
 }
 
 test {
     useJUnitPlatform()
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // Get all source files from this project and bundle them up in

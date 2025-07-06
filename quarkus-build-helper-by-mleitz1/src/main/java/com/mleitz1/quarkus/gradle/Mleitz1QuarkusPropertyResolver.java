@@ -166,7 +166,7 @@ public class Mleitz1QuarkusPropertyResolver {
      */
     public String getQuarkusNativeBuilderImage() {
         String value = getGradlePropertyStringValue("quarkus.native.builder-image");
-        return value != null ? value : "";
+        return value != null ? value : "Not specified";
     }
 
     /**
@@ -176,7 +176,7 @@ public class Mleitz1QuarkusPropertyResolver {
      */
     public String getQuarkusNativeNativeImageXmx() {
         String value = getGradlePropertyStringValue("quarkus.native.native-image-xmx");
-        return value != null ? value : "";
+        return value != null ? value : "Not specified";
     }
 
     /**

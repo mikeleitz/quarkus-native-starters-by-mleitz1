@@ -2,8 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
-    // Commented out for multi-project build from root
-    // id 'com.mleitz1.quarkus.quarkus-build-helper'
+    id 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
 group = 'com.mleitz1.quarkus'

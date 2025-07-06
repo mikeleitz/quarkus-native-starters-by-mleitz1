@@ -8,6 +8,7 @@ import java.util.Map;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskContainer;
 
 /**
@@ -44,8 +45,15 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
         project.getExtensions().getExtraProperties().set("validateNativeEnvironment", (java.util.function.Supplier<Boolean>) this::validateNativeEnvironment);
         project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID));
 
+        createNewTasks(project);
+        registerTasks(project);
+    }
+
+    private void createNewTasks(Project project) {
+        TaskContainer tasks = project.getTasks();
+
         // Register a task to display Quarkus property status
-        project.getTasks().register("displayQuarkusPropertyStatus", task -> {
+        tasks.register("displayQuarkusBuildOverview", task -> {
             task.setGroup(MLEITZ_1_QUARKUS_GROUP);
             task.setDescription("Displays the status of Quarkus build properties");
 
@@ -63,39 +71,8 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
             });
         });
 
-        // Register all other tasks
-        registerTasks(project);
-    }
-
-    private void registerTasks(Project project) {
-        TaskContainer tasks = project.getTasks();
-
-        // Register a task to verify native executable after build
-        tasks.register("validateNativeExecutable", task -> {
-            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
-            task.setDescription("Verifies native executable details after the build is done");
-            task.dependsOn("quarkusBuild");
-
-            task.doLast(t -> {
-                File nativeExecutable = new File("build/" + project.getRootProject().getName() + "-" + project.getVersion() + "-runner");
-                if (nativeExecutable.exists()) {
-                    System.out.println("✅ Native executable created successfully:");
-                    System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
-                    System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
-                    System.out.println("   🚀 Run with: ./" + nativeExecutable.getName());
-                } else {
-                    System.out.println("❌ Native executable not found at expected location");
-                }
-            });
-        });
-
-        // Hook verification to build
-        project.getTasks().named("build").configure(task -> {
-            task.finalizedBy("validateNativeExecutable");
-        });
-
         // Register a task to display the native build configuration
-        tasks.register("displayNativeBuildConfig", task -> {
+        tasks.register("displayQuarkusBuildDetail", task -> {
             task.setGroup(MLEITZ_1_QUARKUS_GROUP);
             task.setDescription("Displays Quarkus build detail - useful for troubleshooting NATIVE builds");
 
@@ -115,6 +92,25 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("⚙️  Native JVM Type: " + getNativeJVMType());
                 System.out.println("⚙️  Native Image Available: " + (isNativeImageAvailable() ? "✅ Valid" : "❌ Invalid"));
                 System.out.println("=========================================================\n");
+            });
+        });
+
+        // Register a task to verify native executable after build
+        tasks.register("validateNativeExecutable", task -> {
+            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setDescription("Verifies native executable details after the build is done");
+            task.dependsOn("quarkusBuild");
+
+            task.doLast(t -> {
+                File nativeExecutable = new File("build/" + project.getRootProject().getName() + "-" + project.getVersion() + "-runner");
+                if (nativeExecutable.exists()) {
+                    System.out.println("✅ Native executable created successfully:");
+                    System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
+                    System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
+                    System.out.println("   🚀 Run with: ./" + nativeExecutable.getName());
+                } else {
+                    System.out.println("❌ Native executable not found at expected location");
+                }
             });
         });
 
@@ -160,6 +156,40 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                     System.out.println("\n🎉 Native build environment is ready with " + jvmType + "!");
                 }
             });
+        });
+    }
+
+    private void registerTasks(Project project) {
+        // Use afterEvaluate to ensure all plugins are applied and tasks are created
+        project.afterEvaluate(p -> {
+            TaskContainer tasks = p.getTasks();
+
+            // Only set up Quarkus task dependencies if the Quarkus plugin is present
+            if (project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID)) {
+                // Wire up overview task to quarkusGenerateCode if it exists
+                Task displayOverview = tasks.findByName("displayQuarkusBuildOverview");
+                Task quarkusGenerateCode = tasks.findByName("quarkusGenerateCode");
+
+                if (displayOverview != null && quarkusGenerateCode != null) {
+                    quarkusGenerateCode.dependsOn(displayOverview);
+                }
+
+                // Wire up detail task to quarkusBuild if it exists
+                Task displayDetail = tasks.findByName("displayQuarkusBuildDetail");
+                Task quarkusBuild = tasks.findByName("quarkusBuild");
+
+                if (displayDetail != null && quarkusBuild != null) {
+                    quarkusBuild.dependsOn(displayDetail);
+                }
+            }
+
+            // Wire up validation to build task (always available)
+            Task buildTask = tasks.findByName("build");
+            Task validateNativeExecutable = tasks.findByName("validateNativeExecutable");
+
+            if (buildTask != null && validateNativeExecutable != null) {
+                buildTask.finalizedBy(validateNativeExecutable);
+            }
         });
     }
 

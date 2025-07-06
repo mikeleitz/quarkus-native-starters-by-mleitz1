@@ -25,7 +25,6 @@ def determineProjectType(String projectName) {
 subprojects {
     def projectType = determineProjectType(project.name)
 
-    // Common configuration...
     apply plugin: 'java'
 
     // Configure based on project type
@@ -58,7 +57,14 @@ def configureGradlePlugin(Project project) {
 }
 
 def configureQuarkusExample(Project project) {
+    project.buildscript {
+        dependencies {
+            classpath project(':quarkus-build-helper-by-mleitz1')
+        }
+    }
 
+    // Apply the plugin to Quarkus example projects
+    project.apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
 def configureQuarkusTemplate(Project project) {
