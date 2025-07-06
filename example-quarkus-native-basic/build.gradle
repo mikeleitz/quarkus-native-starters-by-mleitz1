@@ -8,6 +8,7 @@ plugins {
 
 group = 'com.mleitz1.quarkus'
 version = '0.1.0-SNAPSHOT'
+description = 'An example project about as basic as it gets for quarkus and quarkus NATIVE'
 
 repositories {
     mavenCentral()
