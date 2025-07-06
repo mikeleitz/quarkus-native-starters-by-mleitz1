@@ -1,0 +1,5 @@
+rootProject.name = 'quarkus-native-starters-by-mleitz1'
+
+// Include all subprojects
+include 'example-quarkus-native-basic'
+include 'quarkus-native-helper-by-mleitz1'

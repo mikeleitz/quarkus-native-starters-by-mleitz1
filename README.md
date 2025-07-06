@@ -46,6 +46,52 @@ Each example includes specific instructions for building the native executable, 
 ./gradlew build
 ```
 
+### Building Projects from the Root Directory
+
+This repository is set up as a multi-project Gradle build, allowing you to build any of the projects directly from the root directory. There are two ways to build the projects:
+
+#### Method 1: Using the Project Path
+
+You can specify the project path using the `-p` flag:
+
+```bash
+./gradlew -p quarkus-native-helper-by-mleitz1 build
+./gradlew -p example-quarkus-native-basic build
+```
+
+#### Method 2: Using the Project Name (Recommended)
+
+With the multi-project Gradle setup, you can also use the project name directly:
+
+```bash
+./gradlew :quarkus-native-helper-by-mleitz1:build
+./gradlew :example-quarkus-native-basic:build
+```
+
+#### Publishing the Quarkus Native Helper Plugin
+
+To publish the plugin to your local Maven repository:
+
+```bash
+./gradlew :quarkus-native-helper-by-mleitz1:publishToMavenLocal
+```
+
+#### Building for Raspberry Pi (ARM64)
+
+For native build targeting Raspberry Pi (ARM64):
+
+```bash
+./gradlew :example-quarkus-native-basic:build -Dquarkus.profile=raspberry -Dquarkus.package.type=native
+```
+
+#### Listing All Projects
+
+To see all available projects in the build:
+
+```bash
+./gradlew listProjects
+```
+
 ## Testing
 
 All examples are tested to ensure they build and run correctly as NATIVE executables with the appropriate GraalVM version. The tests verify:

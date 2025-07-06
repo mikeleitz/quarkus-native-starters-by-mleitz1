@@ -1,0 +1,59 @@
+// Root build.gradle for quarkus-native-starters-by-mleitz1
+
+// Apply the base plugin to the root project
+plugins {
+    id 'base'
+}
+
+// Configuration for all projects including the root project
+allprojects {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+// Configuration for all subprojects
+subprojects {
+    // Common tasks and configurations can be defined here
+    task displayProjectInfo {
+        doLast {
+            println "Project: ${project.name}"
+            println "Path: ${project.path}"
+            println "Description: ${project.description ?: 'No description available'}"
+        }
+    }
+}
+
+// Root project tasks
+task buildAll {
+    dependsOn subprojects.collect { it.tasks.findByName('build') }
+    description = 'Builds all subprojects'
+    group = 'build'
+    doLast {
+        println "All subprojects have been built successfully!"
+    }
+}
+
+task cleanAll {
+    dependsOn subprojects.collect { it.tasks.findByName('clean') }
+    description = 'Cleans all subprojects'
+    group = 'build'
+    doLast {
+        println "All subprojects have been cleaned successfully!"
+    }
+}
+
+// Display all projects in the build
+task listProjects {
+    doLast {
+        println "Root project: ${rootProject.name}"
+        println "Subprojects:"
+        subprojects.each { project ->
+            println "- ${project.name}"
+        }
+    }
+}
+
+// Default task when running gradle without arguments
+defaultTasks 'listProjects'

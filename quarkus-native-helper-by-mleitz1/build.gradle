@@ -10,6 +10,12 @@ version = '0.1.0-SNAPSHOT'
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    maven {
+        url = uri("https://repo.maven.apache.org/maven2/")
+    }
+    maven {
+        url = uri("https://repository.jboss.org/nexus/content/groups/public/")
+    }
 }
 
 java {

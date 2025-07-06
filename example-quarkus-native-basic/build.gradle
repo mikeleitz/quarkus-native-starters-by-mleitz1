@@ -2,19 +2,23 @@ plugins {
     id 'java'
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
-//    id 'org.example.quarkus-native-helper'
+    // Commented out for multi-project build from root
+    // id 'org.example.quarkus-native-helper'
 }
 
 // Configure Quarkus Native Helper
+// Commented out for multi-project build from root
+/*
 quarkusNativeHelper {
     nativeEnabled = true
     nativeOnly = true
     validateNativeEnvironment = true
 }
+*/
 
 afterEvaluate {
-    // Use the plugin's task to display native environment information
-    tasks.checkNativeEnvironment.execute()
+    // Commented out for multi-project build from root
+    // tasks.checkNativeEnvironment.execute()
 
     println "🔥 Build Mode: NATIVE BINARY (ONLY)"
     println "📦 Output: ${rootProject.name}-${version}-runner"
@@ -74,8 +78,8 @@ tasks.named('quarkusBuild') {
 // Custom task to display build settings
 task displayBuildSettings {
     doLast {
-        // Use the plugin's task to display native build configuration
-        tasks.displayNativeBuildConfig.execute()
+        // Commented out for multi-project build from root
+        // tasks.displayNativeBuildConfig.execute()
 
         println """
         =========================================================
@@ -133,11 +137,14 @@ task buildForRaspberryPi {
     doFirst {
         System.setProperty('quarkus.profile', 'raspberry')
 
+        // Commented out for multi-project build from root
+        /*
         // Configure the plugin for container build
         quarkusNativeHelper {
             containerBuild = true
             builderImage = "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:22.3-java17"
         }
+        */
 
         println "🔥 Building for Raspberry Pi (ARM64) using container build..."
         println "🐳 Using Mandrel builder image for ARM64 compatibility"
