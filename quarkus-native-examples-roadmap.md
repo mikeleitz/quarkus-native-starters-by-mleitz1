@@ -4,7 +4,7 @@ This document outlines the planned examples for the Quarkus Native Starters repo
 
 ## Current Examples
 
-- **quarkus-native-basic-by-mleitz1**: A simple REST application demonstrating the basics of Quarkus native compilation
+- **example-quarkus-native-basic**: A simple REST application demonstrating the basics of Quarkus native compilation
 
 ## Planned Examples
 

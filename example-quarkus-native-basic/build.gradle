@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
-    id 'org.example.quarkus-native-helper'
+//    id 'org.example.quarkus-native-helper'
 }
 
 // Configure Quarkus Native Helper

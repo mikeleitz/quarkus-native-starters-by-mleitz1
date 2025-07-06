@@ -2,7 +2,7 @@
 # Configuration file
 quarkus:
   application:
-    name: working-quarkus-native-basic-by-mleitz1
+    name: example-quarkus-native-basic
     version: 0.1.0-SNAPSHOT
 
   # HTTP configuration

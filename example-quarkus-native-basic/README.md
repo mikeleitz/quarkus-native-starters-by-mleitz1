@@ -54,7 +54,7 @@ java -jar build/quarkus-app/quarkus-run.jar
 ### Native Mode
 
 ```bash
-./build/working-quarkus-native-basic-by-mleitz1-0.1.0-SNAPSHOT-runner
+./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
 ```
 
 ## Testing the Application
