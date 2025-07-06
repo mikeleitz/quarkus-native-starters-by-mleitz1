@@ -3,8 +3,9 @@ package com.mleitz1.quarkus.gradle;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,25 +20,21 @@ import java.util.Map;
  * the build environment meets the requirements for native image building.
  */
 public class QuarkusNativeHelperPlugin implements Plugin<Project> {
+    public static String QUARKUS_PLUGIN_ID = "io.quarkus";
 
     @Override
     public void apply(Project project) {
+/*
         // Create the extension for configuration
         QuarkusNativeHelperExtension extension = project.getExtensions()
             .create("quarkusNativeHelper", QuarkusNativeHelperExtension.class, project);
-
-        // Register tasks
         registerTasks(project, extension);
-
-        () -> {
-            return project.plugins.hasPlugin('io.quarkus')
-        }
+*/
 
         // Do recon to find all information relevant to quarkus native
-//        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", }
-//        );
 
-//        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> {project.plugins.hasPlugin('io.quarkus')});
+        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID));
+
         project.getExtensions().getExtraProperties().set("isGraalVM", (java.util.function.Supplier<Boolean>) this::isGraalVM);
         project.getExtensions().getExtraProperties().set("isMandrel", (java.util.function.Supplier<Boolean>) this::isMandrel);
         project.getExtensions().getExtraProperties().set("isNativeCapableJVM", (java.util.function.Supplier<Boolean>) this::isNativeCapableJVM);
@@ -50,7 +47,7 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
     private void registerTasks(Project project, QuarkusNativeHelperExtension extension) {
         TaskContainer tasks = project.getTasks();
 
-        // Register a task to display native build configuration
+        // Register a task to display the native build configuration
         tasks.register("displayNativeBuildConfig", task -> {
             task.setGroup("quarkus");
             task.setDescription("Displays the current Quarkus native build configuration");
@@ -72,7 +69,7 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
             });
         });
 
-        // Register a task to check native build environment
+        // Register a task to check the native build environment
         tasks.register("checkNativeEnvironment", task -> {
             task.setGroup("quarkus");
             task.setDescription("Checks if the current environment supports native image building");
@@ -88,7 +85,7 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
                 System.out.println("   VM Version: " + detailedInfo.get("vmVersion"));
                 System.out.println("   Java Home: " + detailedInfo.get("javaHome"));
                 System.out.println("   Mandrel in Path: " + detailedInfo.get("mandrelInPath"));
-                System.out.println("   Quarkus Plugin Applied: " + (isQuarkusPluginApplied() ? "✅ Applied" : "❌ Not applied"));
+                System.out.println("   Quarkus Plugin Applied: " + (project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID) ? "✅ Applied" : "❌ Not applied"));
                 System.out.println("   GraalVM: " + (isGraalVM() ? "✅ Detected" : "❌ Not detected"));
                 System.out.println("   Mandrel: " + (isMandrel() ? "✅ Detected" : "❌ Not detected"));
                 System.out.println("   Native Capable: " + (isNativeCapableJVM() ? "✅ " + jvmType : "❌ Not detected"));
@@ -158,10 +155,10 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
         }
 
         // Check for Mandrel-specific files in JAVA_HOME
-        File releaseFile = new File(javaHome, "release");
-        if (releaseFile.exists()) {
+        Path releasePath = Path.of(javaHome, "release");
+        if (Files.exists(releasePath)) {
             try {
-                String releaseContent = org.gradle.internal.io.IoUtils.toString(new java.io.FileInputStream(releaseFile));
+                String releaseContent = Files.readString(releasePath);
                 if (releaseContent.toLowerCase().contains("mandrel")) {
                     return true;
                 }
@@ -170,11 +167,11 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
             }
         }
 
-        // Check for mandrel in lib/modules file (if it exists)
+        // Check for mandrel in the lib/modules file (if it exists)
         File modulesFile = new File(javaHome, "lib/modules");
         if (modulesFile.exists()) {
             try {
-                // For Mandrel, the modules file might contain mandrel-specific entries
+                // For Mandrel, the module file might contain mandrel-specific entries
                 // This is a fallback check
                 File javaHomeParent = new File(javaHome).getParentFile();
                 if (javaHomeParent != null && javaHomeParent.getName().toLowerCase().contains("mandrel")) {
@@ -258,14 +255,15 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
         info.put("javaHome", javaHome);
         info.put("javaVersion", System.getProperty("java.version"));
 
-        // Check if JAVA_HOME contains mandrel in path
+        // Check if JAVA_HOME contains mandrel in the path
         info.put("mandrelInPath", javaHome != null && javaHome.toLowerCase().contains("mandrel"));
 
-        // Try to read release file
-        File releaseFile = new File(javaHome, "release");
-        if (releaseFile.exists()) {
+        // Try to read the release file
+        Path releasePath = Path.of(javaHome, "release");
+        if (Files.exists(releasePath)) {
             try {
-                info.put("releaseContent", org.gradle.internal.io.IoUtils.toString(new java.io.FileInputStream(releaseFile)));
+                String content = Files.readString(releasePath);
+                info.put("releaseContent", content);
             } catch (Exception e) {
                 info.put("releaseContent", "Could not read release file: " + e.getMessage());
             }

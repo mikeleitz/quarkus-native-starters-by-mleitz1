@@ -1,5 +1,4 @@
-// Root build.gradle for quarkus-native-starters-by-mleitz1
-
+// Root build.gradle for quarkus-native-starters
 // Apply the base plugin to the root project
 plugins {
     id 'base'
@@ -21,8 +20,9 @@ subprojects {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     // Common tasks and configurations can be defined here
-    task displayProjectInfo {
+    tasks.register('displayProjectInfo') {
         doLast {
             println "Project: ${project.name}"
             println "Path: ${project.path}"
@@ -31,27 +31,24 @@ subprojects {
     }
 }
 
-// Root project tasks
-task buildAll {
-    dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
-    description = 'Builds all subprojects'
-    group = 'build'
-    doLast {
-        println "All subprojects have been built successfully!"
+// Helper method to create aggregate tasks
+def createAggregateTask(String taskName, String targetTaskName, String successMessage) {
+    tasks.register(taskName) {
+        dependsOn subprojects*.tasks*.matching { it.name == targetTaskName }
+        description = "${taskName.capitalize()} all subprojects"
+        group = 'build'
+        doLast {
+            println successMessage
+        }
     }
 }
 
-task cleanAll {
-    dependsOn subprojects.collect { it.tasks.matching { it.name == 'clean' } }
-    description = 'Cleans all subprojects'
-    group = 'build'
-    doLast {
-        println "All subprojects have been cleaned successfully!"
-    }
-}
+// Root project tasks
+createAggregateTask('buildAll', 'build', 'All subprojects have been built successfully!')
+createAggregateTask('cleanAll', 'clean', 'All subprojects have been cleaned successfully!')
 
 // Display all projects in the build
-task listProjects {
+tasks.register('listProjects') {
     doLast {
         println "Root project: ${rootProject.name}"
         println "Subprojects:"

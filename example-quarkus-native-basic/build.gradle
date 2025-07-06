@@ -6,16 +6,6 @@ plugins {
     // id 'com.mleitz1.quarkus.quarkus-native-helper'
 }
 
-// Configure Quarkus Native Helper
-// Commented out for multi-project build from root
-/*
-quarkusNativeHelper {
-    nativeEnabled = true
-    nativeOnly = true
-    validateNativeEnvironment = true
-}
-*/
-
 afterEvaluate {
     // Commented out for multi-project build from root
     // tasks.checkNativeEnvironment.execute()
@@ -136,15 +126,6 @@ task buildForRaspberryPi {
 
     doFirst {
         System.setProperty('quarkus.profile', 'raspberry')
-
-        // Commented out for multi-project build from root
-        /*
-        // Configure the plugin for container build
-        quarkusNativeHelper {
-            containerBuild = true
-            builderImage = "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:22.3-java17"
-        }
-        */
 
         println "🔥 Building for Raspberry Pi (ARM64) using container build..."
         println "🐳 Using Mandrel builder image for ARM64 compatibility"

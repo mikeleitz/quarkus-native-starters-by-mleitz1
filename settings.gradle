@@ -1,3 +1,14 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "io.quarkus" version "${quarkusPluginVersion}"
+    }
+}
+
 rootProject.name = 'quarkus-native-starters-by-mleitz1'
 
 // Include all subprojects
