@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
     // Commented out for multi-project build from root
-    // id 'com.mleitz1.quarkus.quarkus-native-helper'
+    // id 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
 afterEvaluate {

@@ -1,5 +1,5 @@
 rootProject.name = 'example-quarkus-native-basic'
 
 //pluginManagement {
-//    includeBuild("../quarkus-native-helper-by-mleitz1") // Replace with the actual path to your plugin project
+//    includeBuild("../quarkus-build-helper-by-mleitz1") // Replace with the actual path to your plugin project
 //}

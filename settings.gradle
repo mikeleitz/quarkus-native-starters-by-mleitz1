@@ -12,6 +12,6 @@ pluginManagement {
 rootProject.name = 'quarkus-native-starters-by-mleitz1'
 
 // Include all subprojects
-include 'quarkus-native-helper-by-mleitz1'
+include 'quarkus-build-helper-by-mleitz1'
 include 'example-quarkus-native-basic'
 // Add other subprojects as needed
