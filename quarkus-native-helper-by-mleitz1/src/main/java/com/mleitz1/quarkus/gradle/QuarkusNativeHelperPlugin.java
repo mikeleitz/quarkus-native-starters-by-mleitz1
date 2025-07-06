@@ -1,15 +1,14 @@
 package com.mleitz1.quarkus.gradle;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A Gradle plugin that encapsulates Quarkus native build support.
@@ -22,19 +21,20 @@ import java.util.Map;
 public class QuarkusNativeHelperPlugin implements Plugin<Project> {
     public static String QUARKUS_PLUGIN_ID = "io.quarkus";
 
+    // Want to let people know the tasks defined here aren't from the quarkus people so they don't confused
+    private static final String MLEITZ_1_QUARKUS_GROUP = "quarkus - mleitz1";
+
+    Mleitz1QuarkusPropertyResolver propertyResolver;
+
     @Override
     public void apply(Project project) {
-/*
-        // Create the extension for configuration
-        QuarkusNativeHelperExtension extension = project.getExtensions()
-            .create("quarkusNativeHelper", QuarkusNativeHelperExtension.class, project);
-        registerTasks(project, extension);
-*/
+        // Create an instance of the property resolver
+        propertyResolver = new Mleitz1QuarkusPropertyResolver(project);
 
-        // Do recon to find all information relevant to quarkus native
+        // Make the property resolver available through project extensions
+        project.getExtensions().getExtraProperties().set("mleitz1QuarkusPropertyResolver", propertyResolver);
 
-        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID));
-
+        // Define various recon functions
         project.getExtensions().getExtraProperties().set("isGraalVM", (java.util.function.Supplier<Boolean>) this::isGraalVM);
         project.getExtensions().getExtraProperties().set("isMandrel", (java.util.function.Supplier<Boolean>) this::isMandrel);
         project.getExtensions().getExtraProperties().set("isNativeCapableJVM", (java.util.function.Supplier<Boolean>) this::isNativeCapableJVM);
@@ -42,37 +42,59 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
         project.getExtensions().getExtraProperties().set("getNativeJVMType", (java.util.function.Supplier<String>) this::getNativeJVMType);
         project.getExtensions().getExtraProperties().set("getDetailedJVMInfo", (java.util.function.Supplier<Map<String, Object>>) this::getDetailedJVMInfo);
         project.getExtensions().getExtraProperties().set("validateNativeEnvironment", (java.util.function.Supplier<Boolean>) this::validateNativeEnvironment);
+        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID));
+
+        // Register a task to display Quarkus property status
+        project.getTasks().register("displayQuarkusPropertyStatus", task -> {
+            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setDescription("Displays the status of Quarkus native build properties");
+
+            task.doLast(t -> {
+                System.out.println("\n=========================================================");
+                System.out.println("QUARKUS BUILD - OVERVIEW");
+                System.out.println("=========================================================");
+                System.out.println("⚙️  quarkus.native.enabled: " + propertyResolver.getQuarkusNativeEnabledStatus());
+                System.out.println("⚙️  quarkus.native.container-build: " + propertyResolver.getQuarkusNativeContainerBuildStatus());
+                System.out.println("⚙️  quarkus.package.jar.enabled: " + propertyResolver.getQuarkusPackageJarEnabledStatus());
+                System.out.println("⚙️  quarkus.native.remote-container-build: " + propertyResolver.getQuarkusNativeRemoteContainerBuildStatus());
+                System.out.println("⚙️  quarkus.package.type: " + propertyResolver.getQuarkusPackageTypeStatus());
+                System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
+                System.out.println("=========================================================\n");
+            });
+        });
     }
 
-    private void registerTasks(Project project, QuarkusNativeHelperExtension extension) {
+    private void registerTasks(Project project) {
         TaskContainer tasks = project.getTasks();
 
         // Register a task to display the native build configuration
         tasks.register("displayNativeBuildConfig", task -> {
-            task.setGroup("quarkus");
-            task.setDescription("Displays the current Quarkus native build configuration");
+            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setDescription("Displays Quarkus build detail - useful for troubleshooting NATIVE builds");
 
             task.doLast(t -> {
                 System.out.println("\n=========================================================");
-                System.out.println("QUARKUS NATIVE BUILD CONFIGURATION");
+                System.out.println("QUARKUS BUILD - DETAIL");
                 System.out.println("=========================================================");
-                System.out.println("⚙️  Native Build Enabled: " + extension.getNativeEnabled().get());
-                System.out.println("⚙️  Container Build: " + extension.getContainerBuild().get());
-                System.out.println("⚙️  Remote Container Build: " + extension.getRemoteContainerBuild().get());
-                System.out.println("⚙️  Builder Image: " + extension.getBuilderImage().getOrElse("default"));
-                System.out.println("⚙️  Native Image Memory: " + extension.getNativeImageXmx().getOrElse("default"));
-                System.out.println("⚙️  Native Only (No JAR): " + extension.getNativeOnly().get());
-                System.out.println("⚙️  Validate Native Environment: " + extension.getValidateNativeEnvironment().get());
+                System.out.println("⚙️  Native Build Enabled: " + propertyResolver.getQuarkusNativeEnabledStatus());
+                System.out.println("⚙️  JAR Build Enabled: " + propertyResolver.getQuarkusPackageJarEnabledStatus());
+                System.out.println("⚙️  Container Build: " + propertyResolver.getQuarkusNativeContainerBuildStatus());
+                System.out.println("⚙️  Remote Container Build: " + propertyResolver.getQuarkusNativeRemoteContainerBuildStatus());
+                System.out.println("⚙️  Package Type: " + propertyResolver.getQuarkusPackageTypeStatus());
+
+                System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
+                System.out.println("⚙️  Native Image Memory: " +  propertyResolver.getQuarkusNativeNativeImageXmx());
+                System.out.println("⚙️  Validate Native Environment: " + (validateNativeEnvironment() ? "✅ Valid" : "❌ Invalid"));
                 System.out.println("⚙️  Native JVM Type: " + getNativeJVMType());
-                System.out.println("⚙️  Native Image Available: " + isNativeImageAvailable());
+                System.out.println("⚙️  Native Image Available: " + (isNativeImageAvailable() ? "✅ Valid" : "❌ Invalid"));
                 System.out.println("=========================================================\n");
             });
         });
 
         // Register a task to check the native build environment
         tasks.register("checkNativeEnvironment", task -> {
-            task.setGroup("quarkus");
-            task.setDescription("Checks if the current environment supports native image building");
+            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setDescription("Checks the build environment for native image building - useful for troubleshooting NATIVE builds");
 
             task.doLast(t -> {
                 String jvmType = getNativeJVMType();
