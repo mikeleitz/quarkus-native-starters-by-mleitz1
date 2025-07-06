@@ -2,8 +2,6 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'java-gradle-plugin'
-
-    id 'io.quarkus' version "${quarkusPluginVersion}"
 }
 
 group = 'com.mleitz1.quarkus'
@@ -20,23 +18,14 @@ repositories {
     }
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 dependencies {
     implementation gradleApi()
-
-    // Testing dependencies
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
 }
 
 gradlePlugin {
     plugins {
         quarkusBuildHelper {
-            id = 'com.mleitz1.quarkus.quarkus-build-helper'
+            id = 'com.mleitz1.quarkus.gradle.quarkus-build-helper'
             implementationClass = 'com.mleitz1.quarkus.gradle.QuarkusBuildHelperPlugin'
         }
     }
