@@ -15,6 +15,12 @@ allprojects {
 
 // Configuration for all subprojects
 subprojects {
+    apply plugin: 'java'
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     // Common tasks and configurations can be defined here
     task displayProjectInfo {
         doLast {
@@ -27,7 +33,7 @@ subprojects {
 
 // Root project tasks
 task buildAll {
-    dependsOn subprojects.collect { it.tasks.findByName('build') }
+    dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
     description = 'Builds all subprojects'
     group = 'build'
     doLast {
@@ -36,7 +42,7 @@ task buildAll {
 }
 
 task cleanAll {
-    dependsOn subprojects.collect { it.tasks.findByName('clean') }
+    dependsOn subprojects.collect { it.tasks.matching { it.name == 'clean' } }
     description = 'Cleans all subprojects'
     group = 'build'
     doLast {

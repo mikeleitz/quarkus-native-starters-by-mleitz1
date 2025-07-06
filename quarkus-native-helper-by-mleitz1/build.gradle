@@ -27,7 +27,7 @@ dependencies {
     implementation gradleApi()
 
     // Quarkus dependencies
-    implementation 'io.quarkus:quarkus-gradle-plugin:3.6.4'
+//    implementation 'io.quarkus:quarkus-gradle-plugin:3.6.4'
 
     // Testing dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'

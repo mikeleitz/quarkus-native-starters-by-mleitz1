@@ -14,7 +14,7 @@ import java.util.Map;
  * A Gradle plugin that encapsulates Quarkus native build support.
  * This plugin simplifies the configuration of Quarkus native builds
  * by providing sensible defaults and helper tasks.
- *
+ * <p>
  * It includes native environment detection and validation to ensure
  * the build environment meets the requirements for native image building.
  */
@@ -24,13 +24,20 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
     public void apply(Project project) {
         // Create the extension for configuration
         QuarkusNativeHelperExtension extension = project.getExtensions()
-                .create("quarkusNativeHelper", QuarkusNativeHelperExtension.class, project);
+            .create("quarkusNativeHelper", QuarkusNativeHelperExtension.class, project);
 
         // Register tasks
         registerTasks(project, extension);
 
+        () -> {
+            return project.plugins.hasPlugin('io.quarkus')
+        }
+
         // Do recon to find all information relevant to quarkus native
-        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> project.plugins.hasPlugin('io.quarkus'))
+//        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", }
+//        );
+
+//        project.getExtensions().getExtraProperties().set("isQuarkusPluginApplied", (java.util.function.Supplier<Boolean>) () -> {project.plugins.hasPlugin('io.quarkus')});
         project.getExtensions().getExtraProperties().set("isGraalVM", (java.util.function.Supplier<Boolean>) this::isGraalVM);
         project.getExtensions().getExtraProperties().set("isMandrel", (java.util.function.Supplier<Boolean>) this::isMandrel);
         project.getExtensions().getExtraProperties().set("isNativeCapableJVM", (java.util.function.Supplier<Boolean>) this::isNativeCapableJVM);
@@ -121,8 +128,8 @@ public class QuarkusNativeHelperPlugin implements Plugin<Project> {
         String javaVmName = System.getProperty("java.vm.name");
 
         return (javaVendor != null && javaVendor.toLowerCase().contains("graalvm")) ||
-               (javaRuntimeName != null && javaRuntimeName.toLowerCase().contains("graalvm")) ||
-               (javaVmName != null && javaVmName.toLowerCase().contains("graalvm"));
+            (javaRuntimeName != null && javaRuntimeName.toLowerCase().contains("graalvm")) ||
+            (javaVmName != null && javaVmName.toLowerCase().contains("graalvm"));
     }
 
     /**
