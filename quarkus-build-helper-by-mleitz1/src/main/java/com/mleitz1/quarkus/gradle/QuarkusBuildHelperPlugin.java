@@ -62,10 +62,37 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("=========================================================\n");
             });
         });
+
+        // Register all other tasks
+        registerTasks(project);
     }
 
     private void registerTasks(Project project) {
         TaskContainer tasks = project.getTasks();
+
+        // Register a task to verify native executable after build
+        tasks.register("validateNativeExecutable", task -> {
+            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setDescription("Verifies native executable details after the build is done");
+            task.dependsOn("quarkusBuild");
+
+            task.doLast(t -> {
+                File nativeExecutable = new File("build/" + project.getRootProject().getName() + "-" + project.getVersion() + "-runner");
+                if (nativeExecutable.exists()) {
+                    System.out.println("✅ Native executable created successfully:");
+                    System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
+                    System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
+                    System.out.println("   🚀 Run with: ./" + nativeExecutable.getName());
+                } else {
+                    System.out.println("❌ Native executable not found at expected location");
+                }
+            });
+        });
+
+        // Hook verification to build
+        project.getTasks().named("build").configure(task -> {
+            task.finalizedBy("validateNativeExecutable");
+        });
 
         // Register a task to display the native build configuration
         tasks.register("displayNativeBuildConfig", task -> {

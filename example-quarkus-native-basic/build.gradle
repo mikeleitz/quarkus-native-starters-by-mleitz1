@@ -6,26 +6,11 @@ plugins {
     // id 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
-afterEvaluate {
-    // Commented out for multi-project build from root
-    // tasks.checkNativeEnvironment.execute()
-
-    println "🔥 Build Mode: NATIVE BINARY (ONLY)"
-    println "📦 Output: ${rootProject.name}-${version}-runner"
-    println "🚀 Container Build: ${System.getProperty('quarkus.native.container-build')}"
-}
-
 group = 'com.mleitz1.quarkus'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-}
-
-java {
-    // Use Java 24 to match your setup
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
 }
 
 // Get all source files from this project and bundle them up in
@@ -51,85 +36,4 @@ dependencies {
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
-}
-
-tasks.named('quarkusBuild') {
-    doFirst {
-        println "🔥 Starting Quarkus Native Build for ${rootProject.name}-${version}-runner"
-        println "⚙️  Java Version: ${System.getProperty('java.version')}"
-        println "⚙️  Java Home: ${System.getProperty('java.home')}"
-        println "⚙️  Memory Config: ${project.findProperty('quarkus.native.native-image-xmx')}"
-        println "⚙️  Build Args: ${project.findProperty('quarkus.native.additionalBuildArgs')}"
-
-        // The plugin will handle native environment validation
-    }
-}
-
-// Custom task to display build settings
-task displayBuildSettings {
-    doLast {
-        // Commented out for multi-project build from root
-        // tasks.displayNativeBuildConfig.execute()
-
-        println """
-        =========================================================
-        QUARKUS NATIVE-ONLY BUILD CONFIGURATION
-        =========================================================
-        ⚙️  Quarkus Version: ${quarkusPlatformVersion}
-        ⚙️  Java Version: ${java.sourceCompatibility}
-        ⚙️  Build Mode: NATIVE BINARY (EXCLUSIVE)
-        ⚙️  Container Build: ${System.getProperty('quarkus.native.container-build')}
-
-        📦  Build Output: ${rootProject.name}-${version}-runner
-
-        This build will produce:
-        - Native executable for your current platform
-        - Ultra-fast startup time (< 100ms)
-        - Low memory footprint (< 50MB)
-        - No JVM required for execution
-
-        Test endpoint: curl localhost:8080/hello
-        =========================================================
-        """
-    }
-}
-
-// Hook the display task to the build process
-build.dependsOn displayBuildSettings
-
-// Use the plugin's checkNativeEnvironment task
-// The task is already defined by the plugin
-
-// Add task to verify native executable after build
-task verifyNativeExecutable {
-    dependsOn 'quarkusBuild'
-    doLast {
-        def nativeExecutable = file("build/${rootProject.name}-${version}-runner")
-        if (nativeExecutable.exists()) {
-            println "✅ Native executable created successfully:"
-            println "   📁 Location: ${nativeExecutable.absolutePath}"
-            println "   📏 Size: ${String.format('%.2f MB', nativeExecutable.length() / 1024.0 / 1024.0)}"
-            println "   🚀 Run with: ./${nativeExecutable.name}"
-        } else {
-            println "❌ Native executable not found at expected location"
-        }
-    }
-}
-
-// Hook verification to build
-build.finalizedBy verifyNativeExecutable
-
-// Add task for cross-platform builds
-task buildForRaspberryPi {
-    group = 'build'
-    description = 'Build native executable for Raspberry Pi (ARM64)'
-
-    doFirst {
-        System.setProperty('quarkus.profile', 'raspberry')
-
-        println "🔥 Building for Raspberry Pi (ARM64) using container build..."
-        println "🐳 Using Mandrel builder image for ARM64 compatibility"
-    }
-
-    finalizedBy 'quarkusBuild'
 }
