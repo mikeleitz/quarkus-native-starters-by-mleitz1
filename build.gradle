@@ -88,10 +88,12 @@ createAggregateTask('cleanAll', 'clean', 'All subprojects have been cleaned succ
 // Display all projects in the build
 tasks.register('listProjects') {
     doLast {
+        def maxNameLength = rootProject.allprojects.collect { it.name.length() }.max()
+
         println "Root project: ${rootProject.name}"
         println "Subprojects:"
         subprojects.each { project ->
-            println "- ${project.name}"
+            println "- ${project.name.padRight(maxNameLength)} - ${project.description}"
         }
     }
 }
