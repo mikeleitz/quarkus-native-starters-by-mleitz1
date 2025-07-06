@@ -62,7 +62,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param propertyName the name of the property to check
      * @return a status string indicating if the property is enabled, disabled, or has a mismatch
      */
-    private String getPropertyStatus(String propertyName) {
+    protected String getPropertyStatus(String propertyName) {
         Boolean systemPropertyValue = getSystemPropertyValue(propertyName);
         Boolean gradlePropertyValue = getGradlePropertyValue(propertyName);
 
@@ -87,7 +87,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param value the boolean value to format
      * @return a string representation of the boolean value
      */
-    private String formatBooleanValue(Boolean value) {
+    protected String formatBooleanValue(Boolean value) {
         return value ? "enabled" : "disabled";
     }
 
@@ -97,7 +97,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param propertyName the name of the property to get
      * @return the boolean value of the property, or null if not defined
      */
-    private Boolean getSystemPropertyValue(String propertyName) {
+    protected Boolean getSystemPropertyValue(String propertyName) {
         String value = System.getProperty(propertyName);
         if (value == null) {
             return null;
@@ -111,7 +111,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param propertyName the name of the property to get
      * @return the boolean value of the property, defaulting to false if not defined
      */
-    private Boolean getGradlePropertyValue(String propertyName) {
+    protected Boolean getGradlePropertyValue(String propertyName) {
         Object value = project.findProperty(propertyName);
         if (value == null) {
             return false;
@@ -128,7 +128,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param propertyName the name of the property to get
      * @return the string value of the property, or null if not defined
      */
-    private String getGradlePropertyStringValue(String propertyName) {
+    protected String getGradlePropertyStringValue(String propertyName) {
         Object value = project.findProperty(propertyName);
         if (value == null) {
             return null;
@@ -194,7 +194,7 @@ public class Mleitz1QuarkusPropertyResolver {
      * @param propertyName the name of the property to check
      * @return a status string indicating the property value or a mismatch
      */
-    private String getStringPropertyStatus(String propertyName) {
+    protected String getStringPropertyStatus(String propertyName) {
         String systemPropertyValue = System.getProperty(propertyName);
         String gradlePropertyValue = getGradlePropertyStringValue(propertyName);
 
