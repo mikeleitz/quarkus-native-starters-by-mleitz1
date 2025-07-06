@@ -1,0 +1,58 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'idea'
+}
+
+group = 'org.example'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencies {
+    implementation gradleApi()
+
+    // Quarkus dependencies
+    implementation 'io.quarkus:quarkus-gradle-plugin:3.6.4'
+
+    // Testing dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+gradlePlugin {
+    plugins {
+        quarkusNativeHelper {
+            id = 'org.example.quarkus-native-helper'
+            implementationClass = 'org.example.quarkus.gradle.QuarkusNativeHelperPlugin'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Get all source files from this project and bundle them up in
+// *-sources.jar
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar
+        }
+    }
+}

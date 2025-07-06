@@ -1,0 +1,209 @@
+// Native build detection utilities for Quarkus projects
+// This script provides methods to detect GraalVM/Mandrel and native-image availability
+
+// Autodetect GraalVM availability
+def isGraalVM() {
+    def javaVendor = System.getProperty('java.vendor')
+    def javaRuntimeName = System.getProperty('java.runtime.name')
+    def javaVmName = System.getProperty('java.vm.name')
+
+    return javaVendor?.toLowerCase()?.contains('graalvm') ||
+            javaRuntimeName?.toLowerCase()?.contains('graalvm') ||
+            javaVmName?.toLowerCase()?.contains('graalvm')
+}
+
+def isMandrel() {
+    // Check system properties first
+    def javaVendor = System.getProperty('java.vendor')
+    def javaRuntimeName = System.getProperty('java.runtime.name')
+    def javaVmName = System.getProperty('java.vm.name')
+    def javaVmVersion = System.getProperty('java.vm.version')
+
+    if (javaVendor?.toLowerCase()?.contains('mandrel') ||
+            javaRuntimeName?.toLowerCase()?.contains('mandrel') ||
+            javaVmName?.toLowerCase()?.contains('mandrel') ||
+            javaVmVersion?.toLowerCase()?.contains('mandrel')) {
+        return true
+    }
+
+    // Check JAVA_HOME path for mandrel
+    def javaHome = System.getProperty('java.home')
+    if (javaHome?.toLowerCase()?.contains('mandrel')) {
+        return true
+    }
+
+    // Check for Mandrel-specific files in JAVA_HOME
+    def releaseFile = new File(javaHome, 'release')
+    if (releaseFile.exists()) {
+        try {
+            def releaseContent = releaseFile.text.toLowerCase()
+            if (releaseContent.contains('mandrel')) {
+                return true
+            }
+        } catch (Exception e) {
+            // Ignore file reading errors
+        }
+    }
+
+    // Check for mandrel in lib/modules file (if it exists)
+    def modulesFile = new File(javaHome, 'lib/modules')
+    if (modulesFile.exists()) {
+        try {
+            // For Mandrel, the modules file might contain mandrel-specific entries
+            // This is a fallback check
+            def javaHomeParent = new File(javaHome).getParentFile()
+            if (javaHomeParent?.name?.toLowerCase()?.contains('mandrel')) {
+                return true
+            }
+        } catch (Exception e) {
+            // Ignore errors
+        }
+    }
+
+    return false
+}
+
+def isNativeCapableJVM() {
+    return isGraalVM() || isMandrel()
+}
+
+def isNativeImageAvailable() {
+    def javaHome = System.getProperty('java.home')
+    def nativeImageExe = System.getProperty('os.name').toLowerCase().contains('windows') ? 'native-image.exe' : 'native-image'
+
+    // Check in JAVA_HOME/bin
+    def nativeImagePath = new File(javaHome, "bin/${nativeImageExe}")
+    if (nativeImagePath.exists()) {
+        return true
+    }
+
+    // Check in PATH
+    def pathVar = System.getenv('PATH')
+    if (pathVar) {
+        def pathDirs = pathVar.split(File.pathSeparator)
+        for (String dir : pathDirs) {
+            def nativeImageInPath = new File(dir, nativeImageExe)
+            if (nativeImageInPath.exists()) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
+def getNativeJVMType() {
+    if (isGraalVM()) {
+        return "GraalVM"
+    } else if (isMandrel()) {
+        return "Mandrel"
+    } else {
+        return "Unknown"
+    }
+}
+
+def getDetailedJVMInfo() {
+    def javaHome = System.getProperty('java.home')
+    def info = [:]
+
+    info.vendor = System.getProperty('java.vendor')
+    info.runtime = System.getProperty('java.runtime.name')
+    info.vmName = System.getProperty('java.vm.name')
+    info.vmVersion = System.getProperty('java.vm.version')
+    info.javaHome = javaHome
+    info.javaVersion = System.getProperty('java.version')
+
+    // Check if JAVA_HOME contains mandrel in path
+    info.mandrelInPath = javaHome?.toLowerCase()?.contains('mandrel') ?: false
+
+    // Try to read release file
+    def releaseFile = new File(javaHome, 'release')
+    if (releaseFile.exists()) {
+        try {
+            info.releaseContent = releaseFile.text
+        } catch (Exception e) {
+            info.releaseContent = "Could not read release file: ${e.message}"
+        }
+    } else {
+        info.releaseContent = "No release file found"
+    }
+
+    return info
+}
+
+// Validate native build requirements
+def validateNativeEnvironment() {
+    def nativeCapableJVM = isNativeCapableJVM()
+    def nativeImageAvailable = isNativeImageAvailable()
+
+    if (!nativeCapableJVM || !nativeImageAvailable) {
+        def jvmType = getNativeJVMType()
+        def detailedInfo = getDetailedJVMInfo()
+
+        def errorMessage = """
+        ❌ NATIVE BUILD REQUIREMENTS NOT MET
+        
+        This project is configured for NATIVE-ONLY builds and requires:
+        
+        ${!nativeCapableJVM ? '❌ Native-capable JVM: Not detected' : '✅ Native-capable JVM: ' + jvmType + ' detected'}
+        ${!nativeImageAvailable ? '❌ Native Image: Not available' : '✅ Native Image: Available'}
+        
+        Current Environment:
+        - Java Vendor: ${detailedInfo.vendor}
+        - Java Runtime: ${detailedInfo.runtime}
+        - Java VM Name: ${detailedInfo.vmName}
+        - Java VM Version: ${detailedInfo.vmVersion}
+        - Java Version: ${detailedInfo.javaVersion}
+        - Java Home: ${detailedInfo.javaHome}
+        - Mandrel in Path: ${detailedInfo.mandrelInPath}
+        
+        Release File Content:
+        ${detailedInfo.releaseContent}
+        
+        Detection Results:
+        - isGraalVM(): ${isGraalVM()}
+        - isMandrel(): ${isMandrel()}
+        - isNativeCapableJVM(): ${isNativeCapableJVM()}
+        - isNativeImageAvailable(): ${isNativeImageAvailable()}
+        
+        To fix this:
+        1. Install GraalVM from https://www.graalvm.org/downloads/
+           OR
+           Install Mandrel from https://github.com/graalvm/mandrel/releases
+        2. Set JAVA_HOME to point to GraalVM/Mandrel installation
+        3. Install native-image: gu install native-image (GraalVM) or use built-in (Mandrel)
+        4. Verify with: native-image --version
+        """
+
+        throw new GradleException(errorMessage)
+    }
+
+    return true
+}
+
+// Configure native-only build
+def configureNativeBuild() {
+    validateNativeEnvironment()
+
+    // Force native-only configuration
+    System.setProperty('quarkus.native.enabled', 'true')
+    System.setProperty('quarkus.package.type', 'native')
+    System.setProperty('quarkus.native.container-build', 'false')
+    System.setProperty('quarkus.package.jar.enabled', 'false')
+    System.setProperty('quarkus.native.remote-container-build', 'false')
+
+    def jvmType = getNativeJVMType()
+    println "✅ Native build environment validated and configured with ${jvmType}"
+}
+
+// Export the methods to be used in the main build.gradle
+ext {
+    isGraalVM = this.&isGraalVM
+    isMandrel = this.&isMandrel
+    isNativeCapableJVM = this.&isNativeCapableJVM
+    isNativeImageAvailable = this.&isNativeImageAvailable
+    getNativeJVMType = this.&getNativeJVMType
+    getDetailedJVMInfo = this.&getDetailedJVMInfo
+    validateNativeEnvironment = this.&validateNativeEnvironment
+    configureNativeBuild = this.&configureNativeBuild
+}
