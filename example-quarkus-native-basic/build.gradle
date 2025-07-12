@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
 }
 
+tasks.named('build') {
+    dependsOn 'quarkusBuild' // Ensure native build runs
+}
+
 // Get all source files from this project and bundle them up in
 // *-sources.jar
 tasks.register('sourceJar', Jar) {

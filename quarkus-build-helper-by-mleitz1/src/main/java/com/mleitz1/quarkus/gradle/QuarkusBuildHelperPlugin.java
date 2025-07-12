@@ -100,14 +100,20 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
             task.dependsOn("quarkusBuild");
 
             task.doLast(t -> {
-                File nativeExecutable = new File("build/" + project.getRootProject().getName() + "-" + project.getVersion() + "-runner");
+                String nativeExecutablePath = project.getProjectDir().getAbsolutePath() + "/build/" + project.getName() + "-" + project.getVersion() + "-runner";
+                File nativeExecutable = new File(nativeExecutablePath);
+                System.out.println("\n=========================================================");
+                System.out.println("QUARKUS BUILD - THE FINISH");
+                System.out.println("=========================================================");
+
                 if (nativeExecutable.exists()) {
                     System.out.println("✅ Native executable created successfully:");
                     System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
                     System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
-                    System.out.println("   🚀 Run with: chmod +x ./" + nativeExecutable.getName() +  "./" + nativeExecutable.getName());
+                    System.out.println("   🚀 Run with: chmod +x " + nativeExecutablePath +  " && " + nativeExecutablePath);
                 } else {
                     System.out.println("❌ Native executable not found at expected location");
+                    System.out.println("Missing: " + nativeExecutablePath);
                 }
             });
         });

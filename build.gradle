@@ -1,5 +1,4 @@
-// Root build.gradle for quarkus-native-starters
-// Apply the base plugin to the root project
+// Apply the base plugin to t   he root project
 plugins {
     id 'base'
     id 'java'
