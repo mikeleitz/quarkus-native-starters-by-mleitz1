@@ -1,6 +1,0 @@
-// TODO Remove this when I get helper plugin publishing
-pluginManagement {
-    includeBuild("../quarkus-build-helper-by-mleitz1") // Replace with the actual path to your plugin project
-}
-
-rootProject.name = 'example-quarkus-native-basic'

@@ -44,6 +44,13 @@ nb-configuration.xml
 *.log
 logs/
 
+# Additional security patterns
+*.pem
+*.p12
+*.jks
+**/secrets/
+config-local.*
+
 # Local development
 application-local.properties
 application-local.yml

@@ -56,15 +56,10 @@ def configureGradlePlugin(Project project) {
     }
 }
 
-def configureQuarkusExample(Project project) {
-    project.buildscript {
-        dependencies {
-            classpath project(':quarkus-build-helper-by-mleitz1')
-        }
-    }
 
-    // Apply the plugin to Quarkus example projects
-    project.apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
+def configureQuarkusExample(Project project) {
+//    // No buildscript needed anymore
+//    project.apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
 def configureQuarkusTemplate(Project project) {
@@ -106,3 +101,9 @@ tasks.register('listProjects') {
 
 // Default task when running gradle without arguments
 defaultTasks 'listProjects'
+
+task buildExampleQuarkusNativeBasic {
+    group = 'build'
+    description = 'Builds the example-quarkus-native-basic subproject'
+    dependsOn ':example-quarkus-native-basic:build'
+}

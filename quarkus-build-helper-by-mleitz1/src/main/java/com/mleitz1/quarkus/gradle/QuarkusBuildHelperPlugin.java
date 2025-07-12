@@ -20,10 +20,8 @@ import org.gradle.api.tasks.TaskContainer;
  * the build environment meets the requirements for native image building.
  */
 public class QuarkusBuildHelperPlugin implements Plugin<Project> {
+    private static final String QUARKUS_DIAGNOSTICS_TASK_GROUP = "Quarkus Diagnostics";
     public static String QUARKUS_PLUGIN_ID = "io.quarkus";
-
-    // Want to let people know the tasks defined here aren't from the quarkus people so they don't confused
-    private static final String MLEITZ_1_QUARKUS_GROUP = "quarkus - mleitz1";
 
     Mleitz1QuarkusPropertyResolver propertyResolver;
 
@@ -54,7 +52,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
         // Register a task to display Quarkus property status
         tasks.register("displayQuarkusBuildOverview", task -> {
-            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setGroup(QUARKUS_DIAGNOSTICS_TASK_GROUP);
             task.setDescription("Displays the status of Quarkus build properties");
 
             task.doLast(t -> {
@@ -73,7 +71,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
         // Register a task to display the native build configuration
         tasks.register("displayQuarkusBuildDetail", task -> {
-            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setGroup(QUARKUS_DIAGNOSTICS_TASK_GROUP);
             task.setDescription("Displays Quarkus build detail - useful for troubleshooting NATIVE builds");
 
             task.doLast(t -> {
@@ -97,7 +95,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
         // Register a task to verify native executable after build
         tasks.register("validateNativeExecutable", task -> {
-            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setGroup(QUARKUS_DIAGNOSTICS_TASK_GROUP);
             task.setDescription("Verifies native executable details after the build is done");
             task.dependsOn("quarkusBuild");
 
@@ -107,7 +105,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                     System.out.println("✅ Native executable created successfully:");
                     System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
                     System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
-                    System.out.println("   🚀 Run with: ./" + nativeExecutable.getName());
+                    System.out.println("   🚀 Run with: chmod +x ./" + nativeExecutable.getName() +  "./" + nativeExecutable.getName());
                 } else {
                     System.out.println("❌ Native executable not found at expected location");
                 }
@@ -116,7 +114,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
         // Register a task to check the native build environment
         tasks.register("checkNativeEnvironment", task -> {
-            task.setGroup(MLEITZ_1_QUARKUS_GROUP);
+            task.setGroup(QUARKUS_DIAGNOSTICS_TASK_GROUP);
             task.setDescription("Checks the build environment for native image building - useful for troubleshooting NATIVE builds");
 
             task.doLast(t -> {
@@ -167,16 +165,17 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
             // Only set up Quarkus task dependencies if the Quarkus plugin is present
             if (project.getPlugins().hasPlugin(QUARKUS_PLUGIN_ID)) {
                 // Wire up overview task to quarkusGenerateCode if it exists
-                Task displayOverview = tasks.findByName("displayQuarkusBuildOverview");
                 Task quarkusGenerateCode = tasks.findByName("quarkusGenerateCode");
+                Task displayOverview = tasks.findByName("displayQuarkusBuildOverview");
 
                 if (displayOverview != null && quarkusGenerateCode != null) {
                     quarkusGenerateCode.dependsOn(displayOverview);
                 }
 
                 // Wire up detail task to quarkusBuild if it exists
-                Task displayDetail = tasks.findByName("displayQuarkusBuildDetail");
                 Task quarkusBuild = tasks.findByName("quarkusBuild");
+                Task displayDetail = tasks.findByName("displayQuarkusBuildDetail");
+
 
                 if (displayDetail != null && quarkusBuild != null) {
                     quarkusBuild.dependsOn(displayDetail);

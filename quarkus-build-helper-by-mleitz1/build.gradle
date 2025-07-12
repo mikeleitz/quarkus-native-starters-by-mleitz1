@@ -28,7 +28,6 @@ gradlePlugin {
         quarkusBuildHelper {
             id = 'com.mleitz1.quarkus.quarkus-build-helper'
             implementationClass = 'com.mleitz1.quarkus.gradle.QuarkusBuildHelperPlugin'
-
         }
     }
 }
