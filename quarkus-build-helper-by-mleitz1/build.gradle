@@ -1,7 +1,8 @@
 plugins {
-    id 'idea'
-    id 'maven-publish'
     id 'java-gradle-plugin'
+    id 'idea'
+    id 'com.gradle.plugin-publish' version '1.3.1'
+    id 'signing'
 }
 
 group = 'com.mleitz1.quarkus'
@@ -14,8 +15,6 @@ repositories {
 
 dependencies {
     implementation gradleApi()
-
-    // Test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
     testImplementation 'org.mockito:mockito-core:5.3.1'
@@ -24,12 +23,22 @@ dependencies {
 }
 
 gradlePlugin {
+    website = 'https://github.com/mikeleitz/quarkus-native-starters-by-mleitz1'
+    vcsUrl = 'https://github.com/mikeleitz/quarkus-native-starters-by-mleitz1.git'
     plugins {
         quarkusBuildHelper {
             id = 'com.mleitz1.quarkus.quarkus-build-helper'
             implementationClass = 'com.mleitz1.quarkus.gradle.QuarkusBuildHelperPlugin'
+            displayName = 'Quarkus Build Helper Plugin'
+            description = 'A Gradle plugin for diagnosing and troubleshooting Quarkus builds, including native image builds'
+            tags = ['quarkus', 'native', 'diagnostics', 'build']
         }
     }
+}
+
+validatePlugins {
+    enableStricterValidation = true
+    failOnWarning = true
 }
 
 test {
@@ -40,18 +49,6 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-// Get all source files from this project and bundle them up in
-// *-sources.jar
-tasks.register('sourceJar', Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = 'sources'
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourceJar
-        }
-    }
+signing {
+    sign publishing.publications
 }

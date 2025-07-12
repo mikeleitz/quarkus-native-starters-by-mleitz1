@@ -18,13 +18,49 @@ import org.gradle.api.tasks.TaskContainer;
  * <p>
  * It includes native environment detection and validation to ensure
  * the build environment meets the requirements for native image building.
+ * <p>
+ * The plugin provides several diagnostic tasks:
+ * <ul>
+ *   <li>displayQuarkusBuildOverview - Shows basic Quarkus build configuration</li>
+ *   <li>displayQuarkusBuildDetail - Shows detailed Quarkus build configuration</li>
+ *   <li>checkNativeEnvironment - Validates the environment for native image building</li>
+ *   <li>validateNativeExecutable - Verifies the native executable after build</li>
+ * </ul>
+ * <p>
+ * It also exposes several utility functions as project extensions that can be used
+ * in build scripts to check the native build environment.
  */
 public class QuarkusBuildHelperPlugin implements Plugin<Project> {
+    /**
+     * Task group name for all Quarkus diagnostic tasks created by this plugin.
+     */
     private static final String QUARKUS_DIAGNOSTICS_TASK_GROUP = "Quarkus Diagnostics";
+
+    /**
+     * The plugin ID for the Quarkus Gradle plugin.
+     */
     public static String QUARKUS_PLUGIN_ID = "io.quarkus";
 
+    /**
+     * Property resolver for accessing Quarkus-specific properties.
+     */
     Mleitz1QuarkusPropertyResolver propertyResolver;
 
+    /**
+     * Default constructor for the plugin.
+     */
+    public QuarkusBuildHelperPlugin() {
+        // Default constructor implementation
+    }
+
+    /**
+     * Applies the plugin to the specified project.
+     * <p>
+     * This method initializes the property resolver, registers utility functions as project extensions,
+     * and creates diagnostic tasks for Quarkus builds.
+     *
+     * @param project The Gradle project to which this plugin is applied
+     */
     @Override
     public void apply(Project project) {
         // Create an instance of the property resolver
@@ -47,6 +83,19 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
         registerTasks(project);
     }
 
+    /**
+     * Creates and registers the diagnostic tasks provided by this plugin.
+     * <p>
+     * This method creates the following tasks:
+     * <ul>
+     *   <li>displayQuarkusBuildOverview - Shows basic Quarkus build configuration</li>
+     *   <li>displayQuarkusBuildDetail - Shows detailed Quarkus build configuration</li>
+     *   <li>validateNativeExecutable - Verifies the native executable after build</li>
+     *   <li>checkNativeEnvironment - Validates the environment for native image building</li>
+     * </ul>
+     *
+     * @param project The Gradle project to which the tasks will be added
+     */
     private void createNewTasks(Project project) {
         TaskContainer tasks = project.getTasks();
 
@@ -85,7 +134,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("⚙️  Package Type: " + propertyResolver.getQuarkusPackageTypeStatus());
 
                 System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
-                System.out.println("⚙️  Native Image Memory: " +  propertyResolver.getQuarkusNativeNativeImageXmx());
+                System.out.println("⚙️  Native Image Memory: " + propertyResolver.getQuarkusNativeNativeImageXmx());
                 System.out.println("⚙️  Validate Native Environment: " + (validateNativeEnvironment() ? "✅ Valid" : "❌ Invalid"));
                 System.out.println("⚙️  Native JVM Type: " + getNativeJVMType());
                 System.out.println("⚙️  Native Image Available: " + (isNativeImageAvailable() ? "✅ Valid" : "❌ Invalid"));
@@ -110,7 +159,7 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                     System.out.println("✅ Native executable created successfully:");
                     System.out.println("   📁 Location: " + nativeExecutable.getAbsolutePath());
                     System.out.println("   📏 Size: " + String.format("%.2f MB", nativeExecutable.length() / 1024.0 / 1024.0));
-                    System.out.println("   🚀 Run with: chmod +x " + nativeExecutablePath +  " && " + nativeExecutablePath);
+                    System.out.println("   🚀 Run with: chmod +x " + nativeExecutablePath + " && " + nativeExecutablePath);
                 } else {
                     System.out.println("❌ Native executable not found at expected location");
                     System.out.println("Missing: " + nativeExecutablePath);
@@ -163,6 +212,21 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
         });
     }
 
+    /**
+     * Registers task dependencies between plugin tasks and Quarkus tasks.
+     * <p>
+     * This method sets up the following dependencies:
+     * <ul>
+     *   <li>quarkusGenerateCode depends on displayQuarkusBuildOverview</li>
+     *   <li>quarkusBuild depends on displayQuarkusBuildDetail</li>
+     *   <li>build is finalized by validateNativeExecutable</li>
+     * </ul>
+     * <p>
+     * These dependencies ensure that diagnostic information is displayed at appropriate
+     * points during the build process.
+     *
+     * @param project The Gradle project in which to register task dependencies
+     */
     private void registerTasks(Project project) {
         // Use afterEvaluate to ensure all plugins are applied and tasks are created
         project.afterEvaluate(p -> {
@@ -200,6 +264,14 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Checks if the current JVM is GraalVM.
+     * <p>
+     * This method examines various system properties to determine if the current JVM
+     * is GraalVM. It checks the following properties:
+     * <ul>
+     *   <li>java.vendor - Checks if it contains "graalvm"</li>
+     *   <li>java.runtime.name - Checks if it contains "graalvm"</li>
+     *   <li>java.vm.name - Checks if it contains "graalvm"</li>
+     * </ul>
      *
      * @return true if running on GraalVM, false otherwise
      */
@@ -215,6 +287,21 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Checks if the current JVM is Mandrel.
+     * <p>
+     * This method performs multiple checks to determine if the current JVM is Mandrel:
+     * <ol>
+     *   <li>Checks system properties for "mandrel" string:
+     *     <ul>
+     *       <li>java.vendor</li>
+     *       <li>java.runtime.name</li>
+     *       <li>java.vm.name</li>
+     *       <li>java.vm.version</li>
+     *     </ul>
+     *   </li>
+     *   <li>Checks if "mandrel" appears in the JAVA_HOME path</li>
+     *   <li>Examines the content of the "release" file in JAVA_HOME for "mandrel" string</li>
+     *   <li>Checks if the parent directory of JAVA_HOME contains "mandrel" in its name</li>
+     * </ol>
      *
      * @return true if running on Mandrel, false otherwise
      */
@@ -271,8 +358,17 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Checks if the current JVM is capable of native image building.
+     * <p>
+     * A JVM is considered "native capable" if it is either GraalVM or Mandrel.
+     * These are the only JVM distributions that support building native executables
+     * using the GraalVM Native Image technology required by Quarkus native builds.
+     * <p>
+     * This method combines the results of {@link #isGraalVM()} and {@link #isMandrel()}
+     * to determine if the current JVM can support native image building.
      *
      * @return true if the JVM is GraalVM or Mandrel, false otherwise
+     * @see #isGraalVM()
+     * @see #isMandrel()
      */
     public boolean isNativeCapableJVM() {
         return isGraalVM() || isMandrel();
@@ -280,6 +376,15 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Checks if the native-image tool is available in the current environment.
+     * <p>
+     * This method checks for the presence of the native-image executable in two locations:
+     * <ol>
+     *   <li>In the bin directory of JAVA_HOME (${JAVA_HOME}/bin/native-image)</li>
+     *   <li>In any directory listed in the PATH environment variable</li>
+     * </ol>
+     * <p>
+     * The method automatically handles platform differences, looking for native-image.exe
+     * on Windows systems and native-image on other platforms.
      *
      * @return true if native-image is available, false otherwise
      */
@@ -310,8 +415,17 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Gets the type of native-capable JVM.
+     * <p>
+     * This method identifies the specific type of native-capable JVM that is currently running.
+     * It returns a string indicating whether the JVM is GraalVM, Mandrel, or an unknown type.
+     * This information is useful for diagnostic purposes and for providing user feedback
+     * about the build environment.
+     * <p>
+     * The method uses {@link #isGraalVM()} and {@link #isMandrel()} to determine the JVM type.
      *
-     * @return "GraalVM", "Mandrel", or "Unknown"
+     * @return "GraalVM" if running on GraalVM, "Mandrel" if running on Mandrel, or "Unknown" otherwise
+     * @see #isGraalVM()
+     * @see #isMandrel()
      */
     public String getNativeJVMType() {
         if (isGraalVM()) {
@@ -325,6 +439,19 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Gets detailed information about the current JVM environment.
+     * <p>
+     * This method collects various system properties and environment information
+     * related to the JVM and returns them in a map. The map contains the following keys:
+     * <ul>
+     *   <li>"vendor" - The Java vendor (java.vendor property)</li>
+     *   <li>"runtime" - The Java runtime name (java.runtime.name property)</li>
+     *   <li>"vmName" - The Java VM name (java.vm.name property)</li>
+     *   <li>"vmVersion" - The Java VM version (java.vm.version property)</li>
+     *   <li>"javaHome" - The Java home directory (java.home property)</li>
+     *   <li>"javaVersion" - The Java version (java.version property)</li>
+     *   <li>"mandrelInPath" - Boolean indicating if "mandrel" is in the Java home path</li>
+     *   <li>"releaseContent" - Content of the release file in Java home, if available</li>
+     * </ul>
      *
      * @return a map containing detailed JVM information
      */
@@ -360,8 +487,15 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
 
     /**
      * Validates that the current environment meets the requirements for native image building.
+     * <p>
+     * This method checks if the current JVM is capable of native image building (GraalVM or Mandrel)
+     * and if the native-image tool is available. If either condition is not met, it throws a
+     * detailed GradleException with information about the current environment and instructions
+     * on how to set up the environment correctly.
      *
-     * @return true if the environment is valid, throws an exception otherwise
+     * @return true if the environment is valid for native image building
+     * @throws GradleException if the environment does not meet the requirements for native image building,
+     *                        with detailed information about the current environment and how to fix it
      */
     public boolean validateNativeEnvironment() {
         boolean nativeCapableJVM = isNativeCapableJVM();
