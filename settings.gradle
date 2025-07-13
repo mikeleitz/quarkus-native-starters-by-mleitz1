@@ -10,7 +10,7 @@ rootProject.name = 'quarkus-native-starters-by-mleitz1'
 
 // Include regular subprojects (e.g., examples, templates, utilities)
 include ':example-quarkus-native-basic'
-project(':example-quarkus-native-basic').name = 'example-quarkus-native-basic'
+include ':example-quarkus-native-postgres'
 
 // Add other includes here if you have more subprojects like templates
 

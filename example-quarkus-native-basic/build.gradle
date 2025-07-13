@@ -1,42 +1,24 @@
 plugins {
-    id 'java'
     id 'idea'
     id 'io.quarkus' version "${quarkusPluginVersion}"
     id 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
-group = 'com.mleitz1.quarkus'
-version = '0.1.1-SNAPSHOT'
 description = 'An example project about as basic as it gets for quarkus and quarkus NATIVE'
-
-repositories {
-    mavenCentral()
-}
 
 tasks.named('build') {
     dependsOn 'quarkusBuild' // Ensure native build runs
 }
 
-// Get all source files from this project and bundle them up in
-// *-sources.jar
-tasks.register('sourceJar', Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = 'sources'
-}
-
-idea {
-    module {
-        downloadJavadoc = true
-    }
-}
-
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'io.quarkus:quarkus-resteasy-reactive'
+
     implementation 'io.quarkus:quarkus-arc'
 
-    // Native image support
-    implementation 'io.quarkus:quarkus-container-image-docker'
+    implementation 'io.quarkus:quarkus-rest'
+
+    implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'

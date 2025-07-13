@@ -75,9 +75,9 @@ You should receive: `Hello from Quarkus Native!`
 
 ## Project Structure
 
-- `src/main/java/org/example/GreetingResource.java` - REST endpoint
+- `src/main/java/com/mleitz1/quarkus/GreetingResource.java` - REST endpoint
 - `src/main/resources/application.properties` - Quarkus configuration
-- `src/test/java/org/example/GreetingResourceTest.java` - Tests
+- `src/test/java/com/mleitz1/quarkus/GreetingResourceTest.java` - Tests
 
 ## Configuration
 

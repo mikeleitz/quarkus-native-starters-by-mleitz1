@@ -1,72 +1,46 @@
-// Apply the base plugin to t   he root project
+// Apply the base plugin to the root project
 plugins {
     id 'base'
     id 'java'
-
 }
 
 // Configuration for all projects including the root project
 allprojects {
+    group = 'com.mleitz1.quarkus'
+    version = '0.1.1-SNAPSHOT'
+
     repositories {
         mavenCentral()
         gradlePluginPortal()
     }
-}
 
-def determineProjectType(String projectName) {
-    if (projectName.startsWith('example-')) return 'QUARKUS_EXAMPLE'
-    if (projectName.contains('template')) return 'QUARKUS_TEMPLATE'
-    if (projectName.contains('helper') || projectName.contains('plugin')) return 'GRADLE_PLUGIN'
-    return 'UTILITY'
-}
-
-// Common configuration by type for subprojects
-subprojects {
-    def projectType = determineProjectType(project.name)
-
+    apply plugin: 'idea'
     apply plugin: 'java'
-
-    // Configure based on project type
-    switch(projectType) {
-        case 'GRADLE_PLUGIN':
-            configureGradlePlugin(project)
-            break
-        case 'QUARKUS_EXAMPLE':
-            configureQuarkusExample(project)
-            break
-        case 'QUARKUS_TEMPLATE':
-            configureQuarkusTemplate(project)
-            break
-        case 'UTILITY':
-            configureUtility(project)
-            break
-    }
-}
-
-def configureGradlePlugin(Project project) {
-    // Create as wide of a distribution for the plugins as possible.
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(11)
+            // Only support Mandrel v24 currently - TODO support more jdk versions
+            languageVersion = JavaLanguageVersion.of(24)
+        }
+    }
+
+    tasks.withType(Test) {
+        jvmArgs = [
+                '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+                '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+                '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED'
+        ]
+    }
+
+    idea {
+        module {
+            downloadJavadoc = true
         }
     }
 }
 
-
-def configureQuarkusExample(Project project) {
-//    // No buildscript needed anymore
-//    project.apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
-}
-
-def configureQuarkusTemplate(Project project) {
-    // N/a
-}
-
-def configureUtility(Project project) {
-    // N/a
+// Common configuration by type for subprojects
+subprojects {
 }
 
 // Helper method to create aggregate tasks
