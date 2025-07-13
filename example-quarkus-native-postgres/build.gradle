@@ -1,6 +1,14 @@
 plugins {
     id 'io.quarkus' version "${quarkusPluginVersion}"
     id 'com.mleitz1.quarkus.quarkus-build-helper'
+    id 'com.avast.gradle.docker-compose' version '0.17.6'
+}
+
+// Docker Compose configuration
+dockerCompose {
+    useComposeFiles = ['docker-compose-postgres.yml']
+    startedServices = ['postgres']
+    waitForTcpPorts = false // let Quarkus handle connection waiting
 }
 
 description = 'An example project for quarkus native with PostgreSQL integration'
@@ -23,13 +31,19 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
 }
 
-// Register the integration test task
+// Update integration test task
 tasks.register('integrationTest', Test) {
     group = 'verification'
     description = 'Runs integration tests'
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     useJUnitPlatform()
+
+    // Start Docker Compose before tests
+    dependsOn 'composeUp'
+
+    // Stop Docker Compose after tests
+    finalizedBy 'composeDown'
 
     // Integration tests should run after native build
     dependsOn 'quarkusBuild'

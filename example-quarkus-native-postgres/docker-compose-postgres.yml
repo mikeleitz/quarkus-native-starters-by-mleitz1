@@ -1,5 +1,5 @@
 services:
-  postgres_db:
+  postgres:
     image: 'postgres:latest'  # Use the official PostgreSQL image
     container_name: postgres-for-quarkus-tests
     environment:
