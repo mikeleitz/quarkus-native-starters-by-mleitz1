@@ -30,7 +30,6 @@ public class Mleitz1QuarkusPropertyResolverTest {
         System.clearProperty("quarkus.native.container-build");
         System.clearProperty("quarkus.package.jar.enabled");
         System.clearProperty("quarkus.native.remote-container-build");
-        System.clearProperty("quarkus.package.type");
         System.clearProperty("quarkus.test.property");
     }
 
@@ -141,69 +140,6 @@ public class Mleitz1QuarkusPropertyResolverTest {
 
         // Verify
         assertEquals("❌ Disabled", result);
-    }
-
-    @Test
-    void testGetQuarkusPackageTypeStatus_GradleOnly() {
-        // Setup
-        testProperties.put("quarkus.package.type", "native");
-
-        // Test
-        String result = resolver.getQuarkusPackageTypeStatus();
-
-        // Verify
-        assertEquals("native", result);
-    }
-
-    @Test
-    void testGetQuarkusPackageTypeStatus_SystemOverride() {
-        // Setup
-        testProperties.put("quarkus.package.type", "jar");
-        System.setProperty("quarkus.package.type", "native");
-
-        // Test
-        String result = resolver.getQuarkusPackageTypeStatus();
-
-        // Verify
-        assertEquals("⚠️ Mismatch: System=native, Gradle=jar", result);
-    }
-
-    @Test
-    void testGetQuarkusPackageTypeStatus_BothEqual() {
-        // Setup
-        testProperties.put("quarkus.package.type", "native");
-        System.setProperty("quarkus.package.type", "native");
-
-        // Test
-        String result = resolver.getQuarkusPackageTypeStatus();
-
-        // Verify
-        assertEquals("native", result);
-    }
-
-    @Test
-    void testGetQuarkusPackageType_SystemPropertySet() {
-        // Setup
-        testProperties.put("quarkus.package.type", "jar");
-        System.setProperty("quarkus.package.type", "native");
-
-        // Test
-        String result = resolver.getQuarkusPackageType();
-
-        // Verify
-        assertEquals("native", result);
-    }
-
-    @Test
-    void testGetQuarkusPackageType_SystemPropertyNotSet() {
-        // Setup
-        testProperties.put("quarkus.package.type", "jar");
-
-        // Test
-        String result = resolver.getQuarkusPackageType();
-
-        // Verify
-        assertEquals("jar", result);
     }
 
     @Test

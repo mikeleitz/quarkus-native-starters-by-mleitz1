@@ -112,7 +112,6 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("⚙️  quarkus.native.container-build: " + propertyResolver.getQuarkusNativeContainerBuildStatus());
                 System.out.println("⚙️  quarkus.package.jar.enabled: " + propertyResolver.getQuarkusPackageJarEnabledStatus());
                 System.out.println("⚙️  quarkus.native.remote-container-build: " + propertyResolver.getQuarkusNativeRemoteContainerBuildStatus());
-                System.out.println("⚙️  quarkus.package.type: " + propertyResolver.getQuarkusPackageTypeStatus());
                 System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
                 System.out.println("=========================================================\n");
             });
@@ -131,7 +130,6 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("⚙️  JAR Build Enabled: " + propertyResolver.getQuarkusPackageJarEnabledStatus());
                 System.out.println("⚙️  Container Build: " + propertyResolver.getQuarkusNativeContainerBuildStatus());
                 System.out.println("⚙️  Remote Container Build: " + propertyResolver.getQuarkusNativeRemoteContainerBuildStatus());
-                System.out.println("⚙️  Package Type: " + propertyResolver.getQuarkusPackageTypeStatus());
 
                 System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
                 System.out.println("⚙️  Native Image Memory: " + propertyResolver.getQuarkusNativeNativeImageXmx());

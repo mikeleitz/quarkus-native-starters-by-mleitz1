@@ -47,13 +47,7 @@ It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
 You can create a native executable using:
 
 ```bash
-./gradlew :example-quarkus-native-postgres:build -Dquarkus.package.type=native
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```bash
-./gradlew :example-quarkus-native-postgres:build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
+./gradlew :example-quarkus-native-postgres:build
 ```
 
 ## API Endpoints

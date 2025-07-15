@@ -137,29 +137,6 @@ public class Mleitz1QuarkusPropertyResolver {
     }
 
     /**
-     * Gets the status of the quarkus.package.type property.
-     *
-     * @return a status string indicating the property value or a mismatch
-     */
-    public String getQuarkusPackageTypeStatus() {
-        return getStringPropertyStatus("quarkus.package.type");
-    }
-
-    /**
-     * Gets the value of the quarkus.package.type property.
-     * Checks both system and Gradle properties, with system properties taking precedence.
-     *
-     * @return the value of the property, or null if not defined
-     */
-    public String getQuarkusPackageType() {
-        String systemValue = System.getProperty("quarkus.package.type");
-        if (systemValue != null && !systemValue.isEmpty()) {
-            return systemValue;
-        }
-        return getGradlePropertyStringValue("quarkus.package.type");
-    }
-
-    /**
      * Gets the value of the quarkus.native.builder-image property.
      *
      * @return the value of the property, or a default value if not defined

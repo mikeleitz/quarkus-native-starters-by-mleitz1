@@ -71,7 +71,6 @@ The repository is configured for native builds by default with these settings in
 ```properties
 # Force native build
 quarkus.native.enabled=true
-quarkus.package.type=native
 quarkus.package.jar.enabled=false
 
 # Native image configuration

@@ -35,14 +35,6 @@ NOTE: There isn't a JVM mode/jar file produced by default. Consider this repo ha
 
 This will produce a native executable in `build/`.
 
-### Native Mode for Raspberry Pi 4/5
-
-```bash
-./gradlew build -Dquarkus.profile=raspberry -Dquarkus.package.type=native
-```
-
-This will use Docker to cross-compile a native executable for ARM64 architecture.
-
 ## Running the Application
 
 ### JVM Mode
