@@ -1,96 +1,17 @@
 plugins {
+    id 'java'
     id 'io.quarkus' version "${quarkusPluginVersion}"
     id 'com.mleitz1.quarkus.quarkus-build-helper'
-    id 'com.avast.gradle.docker-compose' version '0.17.6'
 }
 
 // Docker Compose configuration
 dockerCompose {
-    useComposeFiles = ['docker-compose-postgres.yml']
+    useComposeFiles = ['docker-compose.yml']
     startedServices = ['postgres']
     waitForTcpPorts = false // let Quarkus handle connection waiting
 }
 
 description = 'An example project for quarkus native with PostgreSQL integration'
-
-tasks.named('build') {
-    dependsOn 'quarkusBuild' // Ensure native build runs
-}
-
-sourceSets {
-    integrationTest {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        java.srcDir('src/integrationTest/java')
-        resources.srcDir('src/integrationTest/resources')
-    }
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom(testImplementation)
-    integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
-}
-
-// Update integration test task
-tasks.register('integrationTest', Test) {
-    group = 'verification'
-    description = 'Runs integration tests'
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    useJUnitPlatform()
-
-    // Start Docker Compose before tests
-    dependsOn 'composeUp'
-
-    // Stop Docker Compose after tests
-    finalizedBy 'composeDown'
-
-    // Integration tests should run after native build
-    dependsOn 'quarkusBuild'
-
-    // Configure test reporting
-    reports {
-        html.required = true
-        junitXml.required = true
-    }
-
-    // Customize test output
-    testLogging {
-        events "passed", "skipped", "failed", "standardOut", "standardError"
-        exceptionFormat "full"
-        showCauses true
-        showExceptions true
-        showStackTraces true
-        showStandardStreams false
-    }
-
-    // Print summary at the end
-    afterSuite { desc, result ->
-        def reportFile = file("build/reports/tests/integrationTest/index.html")
-
-        if (!desc.parent) { // Only execute for the root suite
-            println ""
-            println "Integration Test Results:"
-            println "========================"
-            println "Tests: ${result.testCount}"
-            println "Passed: ${result.successfulTestCount}"
-            println "Failed: ${result.failedTestCount}"
-            println "Skipped: ${result.skippedTestCount}"
-            println "Success rate: ${result.successfulTestCount}/${result.testCount} (${Math.round(result.successfulTestCount * 100 / result.testCount)}%)"
-            println "========================"
-
-            if (reportFile.exists()) {
-                println "HTML Report: file://${reportFile.absolutePath}"
-            }
-        }
-    }
-}
-
-// Make build depend on integration tests
-tasks.named('build') {
-    dependsOn 'integrationTest'
-    // quarkusBuild dependency is now handled by integrationTest
-}
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")

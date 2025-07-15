@@ -1,7 +1,10 @@
-// Apply the base plugin to the root project
 plugins {
     id 'base'
     id 'java'
+    // Have to define these here but apply them in a separate line in the subprojects section
+    id 'io.quarkus' version "${quarkusPluginVersion}" apply false
+    id 'com.mleitz1.quarkus.quarkus-build-helper' apply false
+    id 'com.avast.gradle.docker-compose' version '0.17.6' apply false
 }
 
 // Configuration for all projects including the root project
@@ -41,6 +44,74 @@ allprojects {
 
 // Common configuration by type for subprojects
 subprojects {
+    // Common configuration for all subprojects
+    apply plugin: 'io.quarkus'
+    apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
+    apply plugin: 'com.avast.gradle.docker-compose'
+
+    // Adding behavior to quarkus plugin's integration tests
+    // when someone runs the integration test on the subprojects
+    // there's some docker containers that need to be
+    // created to run those example tests
+    tasks.named('quarkusIntTest', Test) {
+        // Docker Compose lifecycle - start before tests
+        dependsOn 'composeUp'
+
+        // Docker Compose lifecycle - stop after tests (even if they fail)
+        finalizedBy 'composeDown'
+
+        // Integration tests should run after native build
+        dependsOn 'quarkusBuild'
+
+        // Configure test reporting
+        reports {
+            html.required = true
+            junitXml.required = true
+        }
+
+        // Create a little report for these native integration tests
+        testLogging {
+            events "passed", "skipped", "failed", "standardOut", "standardError"
+            exceptionFormat "full"
+            showCauses true
+            showExceptions true
+            showStackTraces true
+            showStandardStreams false
+        }
+
+        // Print summary at the end
+        afterSuite { desc, result ->
+            def reportFile = file("build/reports/tests/integrationTest/index.html")
+
+            if (!desc.parent) { // Only execute for the root suite
+                println ""
+                println "Integration Test Results:"
+                println "========================"
+                println "Tests: ${result.testCount}"
+                println "Passed: ${result.successfulTestCount}"
+                println "Failed: ${result.failedTestCount}"
+                println "Skipped: ${result.skippedTestCount}"
+                println "Success rate: ${result.successfulTestCount}/${result.testCount} (${Math.round(result.successfulTestCount * 100 / result.testCount)}%)"
+                println "========================"
+
+                if (reportFile.exists()) {
+                    println "HTML Report: file://${reportFile.absolutePath}"
+                }
+            }
+        }
+
+        // Optional: Add some environment variables for tests
+        environment 'POSTGRES_HOST', 'localhost'
+        environment 'POSTGRES_PORT', '5432'
+        environment 'POSTGRES_DB', 'quarkus_test'
+        environment 'POSTGRES_USER', 'quarkus-admin'
+        environment 'POSTGRES_PASSWORD', 'mysecretpassword'
+    }
+
+    // Make build depend on integration tests
+    tasks.named('build') {
+        dependsOn 'quarkusIntTest'
+    }
 }
 
 // Helper method to create aggregate tasks
@@ -74,9 +145,3 @@ tasks.register('listProjects') {
 
 // Default task when running gradle without arguments
 defaultTasks 'listProjects'
-
-task buildExampleQuarkusNativeBasic {
-    group = 'build'
-    description = 'Builds the example-quarkus-native-basic subproject'
-    dependsOn ':example-quarkus-native-basic:build'
-}

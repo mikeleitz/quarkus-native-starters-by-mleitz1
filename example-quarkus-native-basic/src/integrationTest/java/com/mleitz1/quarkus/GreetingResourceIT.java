@@ -2,11 +2,11 @@ package com.mleitz1.quarkus;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
-public class GreetingResourceTest {
+@QuarkusIntegrationTest
+public class GreetingResourceIT {
 
     @Test
     public void testHelloEndpoint() {
@@ -14,7 +14,7 @@ public class GreetingResourceTest {
           .when().get("/hello")
           .then()
              .statusCode(200)
-             .body(is("Hello from Quarkus Native with PostgreSQL!"));
+             .body(is("Hello from Quarkus Native!"));
     }
 
 }
