@@ -9,7 +9,13 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.Directory;
+import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.jvm.toolchain.JavaLauncher;
+import org.gradle.jvm.toolchain.JavaToolchainService;
+import org.gradle.jvm.toolchain.JavaToolchainSpec;
 
 /**
  * A Gradle plugin that encapsulates Quarkus build support.
@@ -45,6 +51,8 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
      * Property resolver for accessing Quarkus-specific properties.
      */
     Mleitz1QuarkusPropertyResolver propertyResolver;
+
+    NativeImageUtil nativeImageUtil = new NativeImageUtil();
 
     /**
      * Default constructor for the plugin.
@@ -126,11 +134,15 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 System.out.println("\n=========================================================");
                 System.out.println("QUARKUS BUILD - DETAIL");
                 System.out.println("=========================================================");
+                System.out.println("⚙️  Java Home: " + getJavaHome(project));
+                System.out.println("⚙️  Java JDK Binary: " + getJavaJdkBinary(project));
+                System.out.println("⚙️  Native Image Binary: " + nativeImageUtil.findNativeImageBinary(project));
+                System.out.println("");
                 System.out.println("⚙️  Native Build Enabled: " + propertyResolver.getQuarkusNativeEnabledStatus());
                 System.out.println("⚙️  JAR Build Enabled: " + propertyResolver.getQuarkusPackageJarEnabledStatus());
                 System.out.println("⚙️  Container Build: " + propertyResolver.getQuarkusNativeContainerBuildStatus());
                 System.out.println("⚙️  Remote Container Build: " + propertyResolver.getQuarkusNativeRemoteContainerBuildStatus());
-
+                System.out.println("");
                 System.out.println("⚙️  Builder Image: " + propertyResolver.getQuarkusNativeBuilderImage());
                 System.out.println("⚙️  Native Image Memory: " + propertyResolver.getQuarkusNativeNativeImageXmx());
                 System.out.println("⚙️  Validate Native Environment: " + (validateNativeEnvironment() ? "✅ Valid" : "❌ Invalid"));
@@ -258,6 +270,41 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
                 buildTask.finalizedBy(validateNativeExecutable);
             }
         });
+    }
+
+    private String getJavaJdkBinary(Project project) {
+        // Get the Java toolchain service
+        JavaToolchainService toolchainService = project.getExtensions()
+            .getByType(JavaToolchainService.class);
+
+        // Get the Java toolchain spec from the project
+        JavaToolchainSpec toolchainSpec = project.getExtensions()
+            .getByType(JavaPluginExtension.class)
+            .getToolchain();
+
+        // Get the launcher for the configured toolchain
+        Provider<JavaLauncher> launcherProvider = toolchainService.launcherFor(toolchainSpec);
+        JavaLauncher launcher = launcherProvider.get();
+
+        return launcher.getExecutablePath().getAsFile().getAbsolutePath();
+    }
+
+    private String getJavaHome(Project project) {
+        // Get the Java toolchain service
+        JavaToolchainService toolchainService = project.getExtensions()
+            .getByType(JavaToolchainService.class);
+
+        // Get the Java toolchain spec from the project
+        JavaToolchainSpec toolchainSpec = project.getExtensions()
+            .getByType(JavaPluginExtension.class)
+            .getToolchain();
+
+        // Get the launcher for the configured toolchain
+        Provider<JavaLauncher> launcherProvider = toolchainService.launcherFor(toolchainSpec);
+        JavaLauncher launcher = launcherProvider.get();
+        Directory javaHome = launcher.getMetadata().getInstallationPath();
+
+        return javaHome.getAsFile().getAbsolutePath();
     }
 
     /**

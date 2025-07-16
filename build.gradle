@@ -22,7 +22,7 @@ allprojects {
     java {
         toolchain {
             // Only support Mandrel v24 currently - TODO support more jdk versions
-            languageVersion = JavaLanguageVersion.of(24)
+            languageVersion = JavaLanguageVersion.of(21)
         }
     }
 
