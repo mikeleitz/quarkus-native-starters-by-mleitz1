@@ -4,7 +4,6 @@ plugins {
     // Have to define these here but apply them in a separate line in the subprojects section
     id 'io.quarkus' version "${quarkusPluginVersion}" apply false
     id 'com.mleitz1.quarkus.quarkus-build-helper' apply false
-    id 'com.avast.gradle.docker-compose' version '0.17.6' apply false
 }
 
 // Configuration for all projects including the root project
@@ -47,21 +46,26 @@ subprojects {
     // Common configuration for all subprojects
     apply plugin: 'io.quarkus'
     apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
-    apply plugin: 'com.avast.gradle.docker-compose'
 
     // Adding behavior to quarkus plugin's integration tests
     // when someone runs the integration test on the subprojects
-    // there's some docker containers that need to be
-    // created to run those example tests
+    // this will log a detailed report.
+    //
+    // The Quarkus Dev Services feature will provide all the
+    // necessary integration parts like a running database.
+    // So it's unnecessary to handle any of those dependencies
+    // explicitly. NOTE: Docker must be running for Dev Services to
+    // handle this.
     tasks.named('quarkusIntTest', Test) {
-        // Docker Compose lifecycle - start before tests
-        dependsOn 'composeUp'
-
-        // Docker Compose lifecycle - stop after tests (even if they fail)
-        finalizedBy 'composeDown'
-
         // Integration tests should run after native build
         dependsOn 'quarkusBuild'
+
+        // Ensure test profile is used for Dev Services
+        systemProperty 'quarkus.profile', 'test'
+        systemProperty 'quarkus.test.profile', 'test'
+
+        // Enable Dev Services explicitly
+        systemProperty 'quarkus.devservices.enabled', 'true'
 
         // Configure test reporting
         reports {
@@ -99,13 +103,6 @@ subprojects {
                 }
             }
         }
-
-        // Optional: Add some environment variables for tests
-        environment 'POSTGRES_HOST', 'localhost'
-        environment 'POSTGRES_PORT', '5432'
-        environment 'POSTGRES_DB', 'quarkus_test'
-        environment 'POSTGRES_USER', 'quarkus-admin'
-        environment 'POSTGRES_PASSWORD', 'mysecretpassword'
     }
 
     // Make build depend on integration tests

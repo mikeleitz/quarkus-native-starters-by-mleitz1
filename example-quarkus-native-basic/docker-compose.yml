@@ -1,8 +1,0 @@
-services:
-  # A minimal service that stays running but responds to stop signals
-  noop:
-    image: alpine:latest
-    container_name: noop-service
-    command: sh -c "trap 'exit 0' TERM; while true; do sleep 1; done"
-    restart: "no"
-    stop_grace_period: 2s
