@@ -2,6 +2,20 @@
 
 This is an example project demonstrating how to build a Quarkus native application with PostgreSQL integration.
 
+## Recreating this Project
+
+You can recreate this project using the Quarkus CLI with the following command:
+
+```bash
+quarkus create app com.mleitz1.quarkus:example-quarkus-native-postgres:0.1.0-SNAPSHOT \
+  --extension="quarkus-rest,quarkus-rest-jsonb,quarkus-jdbc-postgresql,quarkus-reactive-pg-client,quarkus-hibernate-orm-panache,quarkus-mutiny" \
+  --gradle \
+  --no-code \
+  --java=17
+```
+
+After creating the project, you'll need to configure it for native image compilation and add the necessary model and resource classes.
+
 ## Features
 
 - Quarkus native application

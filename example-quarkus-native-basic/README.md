@@ -2,6 +2,20 @@
 
 A simple Hello World application built with Quarkus and configured for native image compilation.
 
+## Recreating this Project
+
+You can recreate this project using the Quarkus CLI with the following command:
+
+```bash
+quarkus create app com.mleitz1.quarkus:example-quarkus-native-basic:0.1.0-SNAPSHOT \
+  --extension="quarkus-rest" \
+  --gradle \
+  --no-code \
+  --java=17
+```
+
+After creating the project, you'll need to configure it for native image compilation.
+
 To build this project you need to have the GraalVM installed w/native image compliation.
 
 I compiled this originally w/ Oracle GraalVM 21.0.2+13.1 (build 21.0.2+13-LTS-jvmci-23.1-b30)
