@@ -11,6 +11,7 @@ I compiled this originally w/ Oracle GraalVM 21.0.2+13.1 (build 21.0.2+13-LTS-jv
 ## Features
 
 - Built with Quarkus 3.6.4 (latest version)
+- **Fully reactive application** using Quarkus RESTEasy Reactive
 - Configured for native image compilation
 - Cross-platform support for:
   - macOS (x86_64 and ARM64)

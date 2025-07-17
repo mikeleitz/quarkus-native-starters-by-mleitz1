@@ -107,11 +107,25 @@ Common issues:
 
 ## Examples
 
+### Reactive Architecture
+
+Both example projects in this repository are built using Quarkus' reactive architecture:
+
+- **RESTEasy Reactive** - All REST endpoints use Quarkus' reactive HTTP engine
+- **Non-blocking I/O** - Designed for high concurrency with minimal resource usage
+- **Reactive Programming Model** - Using Mutiny for asynchronous and non-blocking operations
+
+This reactive foundation provides several benefits:
+- Improved resource utilization
+- Better scalability under load
+- Reduced memory footprint in native executables
+- More efficient handling of concurrent requests
+
 ### Basic Quarkus Native Application
 
 The `example-quarkus-native-basic` project demonstrates:
 
-- Minimal Quarkus REST application
+- Minimal Quarkus reactive REST application
 - Native build configuration
 - Integration with the build helper plugin
 
@@ -122,6 +136,28 @@ cd example-quarkus-native-basic
 ../gradlew build
 chmod +x ./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
 ./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
+```
+
+### PostgreSQL Quarkus Native Application
+
+The `example-quarkus-native-postgres` project demonstrates:
+
+- Fully reactive PostgreSQL integration
+- Mutiny reactive types (Uni and Multi) for database operations
+- Non-blocking REST API with reactive endpoints
+- Native build configuration with database access
+
+To run:
+
+```bash
+# Start PostgreSQL (if not already running)
+docker run --name postgres-quarkus -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
+
+# Build and run the application
+cd example-quarkus-native-postgres
+../gradlew build
+chmod +x ./build/example-quarkus-native-postgres-0.1.0-SNAPSHOT-runner
+./build/example-quarkus-native-postgres-0.1.0-SNAPSHOT-runner
 ```
 
 ## License

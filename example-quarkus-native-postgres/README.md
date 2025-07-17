@@ -5,9 +5,10 @@ This is an example project demonstrating how to build a Quarkus native applicati
 ## Features
 
 - Quarkus native application
+- **Fully reactive architecture** from end-to-end
 - PostgreSQL integration using reactive client
-- RESTful API for user management
-- Mutiny for reactive programming
+- RESTful API for user management with non-blocking operations
+- Mutiny for reactive programming with Uni and Multi types
 
 ## Prerequisites
 
