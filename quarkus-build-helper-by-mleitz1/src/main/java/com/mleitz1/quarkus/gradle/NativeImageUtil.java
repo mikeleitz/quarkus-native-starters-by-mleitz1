@@ -11,6 +11,21 @@ import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.JavaToolchainSpec;
 import org.gradle.api.Project;
 
+/**
+ * Utility class for working with GraalVM native-image in Gradle builds.
+ * <p>
+ * This class provides methods to locate and interact with the native-image binary
+ * that is used for building native executables with Quarkus. It supports finding
+ * the native-image binary in various locations:
+ * <ul>
+ *   <li>In the configured Java toolchain</li>
+ *   <li>In the JAVA_HOME directory</li>
+ *   <li>In the system PATH</li>
+ * </ul>
+ * <p>
+ * It also provides methods to get information about the native-image installation,
+ * such as its version and availability.
+ */
 public class NativeImageUtil {
     /**
      * Finds the path to the native-image binary that will be used for native compilation.
@@ -156,27 +171,59 @@ public class NativeImageUtil {
     }
 
     /**
-     * Data class to hold native-image information.
+     * Immutable data class to hold information about a native-image installation.
+     * <p>
+     * This class encapsulates details about a native-image binary, including:
+     * <ul>
+     *   <li>Whether the native-image binary is available in the current environment</li>
+     *   <li>The absolute path to the native-image binary (if available)</li>
+     *   <li>The version of the native-image binary (if available)</li>
+     * </ul>
+     * <p>
+     * This information is useful for diagnostics and for determining if the
+     * environment is properly set up for native image building.
      */
     public static class NativeImageInfo {
         private final boolean available;
         private final String path;
         private final String version;
 
+        /**
+         * Creates a new NativeImageInfo instance.
+         *
+         * @param available whether the native-image binary is available
+         * @param path the absolute path to the native-image binary, or null if not available
+         * @param version the version of the native-image binary, or null if not available
+         */
         public NativeImageInfo(boolean available, String path, String version) {
             this.available = available;
             this.path = path;
             this.version = version;
         }
 
+        /**
+         * Checks if the native-image binary is available.
+         *
+         * @return true if the native-image binary is available, false otherwise
+         */
         public boolean isAvailable() {
             return available;
         }
 
+        /**
+         * Gets the absolute path to the native-image binary.
+         *
+         * @return the absolute path to the native-image binary, or null if not available
+         */
         public String getPath() {
             return path;
         }
 
+        /**
+         * Gets the version of the native-image binary.
+         *
+         * @return the version of the native-image binary, or null if not available
+         */
         public String getVersion() {
             return version;
         }

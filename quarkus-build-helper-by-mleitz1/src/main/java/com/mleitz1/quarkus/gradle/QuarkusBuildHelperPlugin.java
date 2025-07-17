@@ -272,6 +272,19 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
         });
     }
 
+    /**
+     * Gets the path to the Java executable from the project's toolchain.
+     * <p>
+     * This method retrieves the Java executable path from the project's configured
+     * Java toolchain. It uses the Gradle Toolchain API to get the launcher for the
+     * configured toolchain and then extracts the path to the Java executable.
+     * <p>
+     * This is useful for diagnostic purposes and for determining which Java
+     * installation is being used for the build.
+     *
+     * @param project the Gradle project
+     * @return the absolute path to the Java executable
+     */
     private String getJavaJdkBinary(Project project) {
         // Get the Java toolchain service
         JavaToolchainService toolchainService = project.getExtensions()
@@ -289,6 +302,19 @@ public class QuarkusBuildHelperPlugin implements Plugin<Project> {
         return launcher.getExecutablePath().getAsFile().getAbsolutePath();
     }
 
+    /**
+     * Gets the Java home directory from the project's toolchain.
+     * <p>
+     * This method retrieves the Java home directory from the project's configured
+     * Java toolchain. It uses the Gradle Toolchain API to get the launcher for the
+     * configured toolchain and then extracts the installation path.
+     * <p>
+     * The Java home directory is important for locating native-image and other
+     * tools that are part of the JDK installation.
+     *
+     * @param project the Gradle project
+     * @return the absolute path to the Java home directory
+     */
     private String getJavaHome(Project project) {
         // Get the Java toolchain service
         JavaToolchainService toolchainService = project.getExtensions()
