@@ -9,7 +9,7 @@ plugins {
 // Configuration for all projects including the root project
 allprojects {
     group = 'com.mleitz1.quarkus'
-    version = '0.1.1-SNAPSHOT'
+    version = '0.1.0'
 
     repositories {
         mavenCentral()
@@ -42,71 +42,67 @@ allprojects {
 
 // Common configuration by type for subprojects
 subprojects {
-    // Common configuration for all subprojects
-    apply plugin: 'io.quarkus'
-    apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
+// EXCLUDE the plugin project from Quarkus configuration
+    if (project.name != 'quarkus-build-helper-by-mleitz1') {
+        // Common configuration for Quarkus application subprojects only
+        apply plugin: 'io.quarkus'
+        apply plugin: 'com.mleitz1.quarkus.quarkus-build-helper'
 
-    // Adding behavior to quarkus plugin's integration tests
-    // when someone runs the integration test on the subprojects
-    // this will log a detailed report.
-    //
-    // The Quarkus Dev Services feature will provide all the
-    // necessary integration parts like a running database.
-    // So it's unnecessary to handle any of those dependencies
-    // explicitly. NOTE: Docker must be running for Dev Services to
-    // handle this.
-    tasks.named('quarkusIntTest', Test) {
-        // Integration tests should run after native build
-        dependsOn 'quarkusBuild'
+        // Adding behavior to quarkus plugin's integration tests
+        // ... rest of your Quarkus-specific configuration
+        tasks.named('quarkusIntTest', Test) {
+            // Integration tests should run after native build
+            dependsOn 'quarkusBuild'
 
-        // Ensure test profile is used for Dev Services
-        systemProperty 'quarkus.profile', 'test'
-        systemProperty 'quarkus.test.profile', 'test'
+            // Ensure test profile is used for Dev Services
+            systemProperty 'quarkus.profile', 'test'
+            systemProperty 'quarkus.test.profile', 'test'
 
-        // Enable Dev Services explicitly
-        systemProperty 'quarkus.devservices.enabled', 'true'
+            // Enable Dev Services explicitly
+            systemProperty 'quarkus.devservices.enabled', 'true'
 
-        // Configure test reporting
-        reports {
-            html.required = true
-            junitXml.required = true
-        }
+            // Configure test reporting
+            reports {
+                html.required = true
+                junitXml.required = true
+            }
 
-        // Create a little report for these native integration tests
-        testLogging {
-            events "passed", "skipped", "failed", "standardOut", "standardError"
-            exceptionFormat "full"
-            showCauses true
-            showExceptions true
-            showStackTraces true
-            showStandardStreams false
-        }
+            // Create a little report for these native integration tests
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                exceptionFormat "full"
+                showCauses true
+                showExceptions true
+                showStackTraces true
+                showStandardStreams false
+            }
 
-        // Print summary at the end
-        afterSuite { desc, result ->
-            def reportFile = file("build/reports/tests/integrationTest/index.html")
+            // Print summary at the end
+            afterSuite { desc, result ->
+                def reportFile = file("build/reports/tests/integrationTest/index.html")
 
-            if (!desc.parent) { // Only execute for the root suite
-                println ""
-                println "Integration Test Results:"
-                println "========================"
-                println "Tests: ${result.testCount}"
-                println "Passed: ${result.successfulTestCount}"
-                println "Failed: ${result.failedTestCount}"
-                println "Skipped: ${result.skippedTestCount}"
-                println "Success rate: ${result.successfulTestCount}/${result.testCount} (${Math.round(result.successfulTestCount * 100 / result.testCount)}%)"
-                println "========================"
+                if (!desc.parent) { // Only execute for the root suite
+                    println ""
+                    println "Integration Test Results:"
+                    println "========================"
+                    println "Tests: ${result.testCount}"
+                    println "Passed: ${result.successfulTestCount}"
+                    println "Failed: ${result.failedTestCount}"
+                    println "Skipped: ${result.skippedTestCount}"
+                    println "Success rate: ${result.successfulTestCount}/${result.testCount} (${Math.round(result.successfulTestCount * 100 / result.testCount)}%)"
+                    println "========================"
 
-                if (reportFile.exists()) {
-                    println "HTML Report: file://${reportFile.absolutePath}"
+                    if (reportFile.exists()) {
+                        println "HTML Report: file://${reportFile.absolutePath}"
+                    }
                 }
             }
         }
-    }
 
-    // Make build depend on integration tests
-    tasks.named('build') {
-        dependsOn 'quarkusIntTest'
+        // Make build depend on integration tests
+        tasks.named('build') {
+            dependsOn 'quarkusIntTest'
+        }
     }
 }
 

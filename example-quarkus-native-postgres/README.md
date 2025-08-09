@@ -7,7 +7,7 @@ This is an example project demonstrating how to build a Quarkus native applicati
 You can recreate this project using the Quarkus CLI with the following command:
 
 ```bash
-quarkus create app com.mleitz1.quarkus:example-quarkus-native-postgres:0.1.0-SNAPSHOT \
+quarkus create app com.mleitz1.quarkus:example-quarkus-native-postgres:0.1.0 \
   --extension="quarkus-rest,quarkus-rest-jsonb,quarkus-jdbc-postgresql,quarkus-reactive-pg-client,quarkus-hibernate-orm-panache,quarkus-mutiny" \
   --gradle \
   --no-code \

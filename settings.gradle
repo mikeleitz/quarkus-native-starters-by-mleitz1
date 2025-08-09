@@ -13,6 +13,3 @@ include ':example-quarkus-native-basic'
 include ':example-quarkus-native-postgres'
 
 // Add other includes here if you have more subprojects like templates
-
-// Treat the plugin as a composite build (built first, plugin available by ID)
-includeBuild 'quarkus-build-helper-by-mleitz1'

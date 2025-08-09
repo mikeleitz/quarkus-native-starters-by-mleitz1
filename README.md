@@ -26,8 +26,8 @@ cd quarkus-native-starters-by-mleitz1
 
 # Run the basic example
 cd example-quarkus-native-basic/build
-chmod +x ./example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
-./example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
+chmod +x ./example-quarkus-native-basic-0.1.0-runner
+./example-quarkus-native-basic-0.1.0-runner
 ```
 
 ## Prerequisites
@@ -134,8 +134,8 @@ To run:
 ```bash
 cd example-quarkus-native-basic
 ../gradlew build
-chmod +x ./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
-./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
+chmod +x ./build/example-quarkus-native-basic-0.1.0-runner
+./build/example-quarkus-native-basic-0.1.0-runner
 ```
 
 ### PostgreSQL Quarkus Native Application
@@ -156,8 +156,8 @@ docker run --name postgres-quarkus -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d
 # Build and run the application
 cd example-quarkus-native-postgres
 ../gradlew build
-chmod +x ./build/example-quarkus-native-postgres-0.1.0-SNAPSHOT-runner
-./build/example-quarkus-native-postgres-0.1.0-SNAPSHOT-runner
+chmod +x ./build/example-quarkus-native-postgres-0.1.0-runner
+./build/example-quarkus-native-postgres-0.1.0-runner
 ```
 
 ## License

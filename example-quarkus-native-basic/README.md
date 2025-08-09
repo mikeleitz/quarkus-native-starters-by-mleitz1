@@ -7,7 +7,7 @@ A simple Hello World application built with Quarkus and configured for native im
 You can recreate this project using the Quarkus CLI with the following command:
 
 ```bash
-quarkus create app com.mleitz1.quarkus:example-quarkus-native-basic:0.1.0-SNAPSHOT \
+quarkus create app com.mleitz1.quarkus:example-quarkus-native-basic:0.1.0 \
   --extension="quarkus-rest" \
   --gradle \
   --no-code \
@@ -61,7 +61,7 @@ java -jar build/quarkus-app/quarkus-run.jar
 ### Native Mode
 
 ```bash
-./build/example-quarkus-native-basic-0.1.0-SNAPSHOT-runner
+./build/example-quarkus-native-basic-0.1.0-runner
 ```
 
 ## Testing the Application
