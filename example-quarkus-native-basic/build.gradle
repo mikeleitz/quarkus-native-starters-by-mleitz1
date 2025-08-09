@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'io.quarkus' version "${quarkusPluginVersion}"
-    id 'com.mleitz1.quarkus.quarkus-build-helper'
 }
 
 description = 'An example project about as basic as it gets for quarkus and quarkus NATIVE'
