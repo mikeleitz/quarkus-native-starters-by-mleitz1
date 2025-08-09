@@ -1,6 +1,6 @@
 # Quarkus Native Starters
 
-A collection of starter projects and tools for building native executables with Quarkus. This repository provides example projects and a Gradle plugin to simplify the development and building of Quarkus native applications.
+A collection of starter projects and tools for building native executables with Quarkus. This repository provides example projects and configuration to simplify the development and building of Quarkus native applications.
 
 [![Quarkus](https://img.shields.io/badge/Quarkus-3.6.4-blue)](https://quarkus.io/)
 [![GraalVM](https://img.shields.io/badge/GraalVM-Compatible-green)](https://www.graalvm.org/)
@@ -10,9 +10,8 @@ A collection of starter projects and tools for building native executables with 
 
 This project provides:
 
-1. **Quarkus Build Helper Plugin** - A Gradle plugin that helps diagnose and troubleshoot Quarkus native builds
-2. **Example Projects** - Ready-to-use Quarkus native application examples
-3. **Build Configuration** - Pre-configured Gradle setup for native builds
+1. **Example Projects** - Ready-to-use Quarkus native application examples
+2. **Build Configuration** - Pre-configured Gradle setup for native builds
 
 ## Quick Start
 
@@ -21,7 +20,7 @@ This project provides:
 git clone https://github.com/yourusername/quarkus-native-starters-by-mleitz1.git
 cd quarkus-native-starters-by-mleitz1
 
-# Build everything (plugin and examples)
+# Build everything (examples)
 ./gradlew build
 
 # Run the basic example
@@ -37,32 +36,11 @@ To build native executables, you need either:
 - **GraalVM** (JDK 17+) with `native-image` installed
 - **Mandrel** (JDK 17+)
 
-The build helper plugin will automatically detect your environment and provide guidance if the setup is incomplete.
 
 ## Project Structure
 
-- **quarkus-build-helper-by-mleitz1** - Gradle plugin for Quarkus build diagnostics
 - **example-quarkus-native-basic** - Minimal Quarkus application with native build configuration
 
-## Quarkus Build Helper Plugin
-
-The plugin provides several useful tasks for diagnosing and troubleshooting Quarkus native builds:
-
-- `displayQuarkusBuildOverview` - Shows basic Quarkus build properties
-- `displayQuarkusBuildDetail` - Shows detailed build configuration
-- `checkNativeEnvironment` - Checks if the environment is properly set up for native builds
-- `validateNativeExecutable` - Verifies the native executable after build
-
-### Using the Plugin
-
-Add the plugin to your Quarkus project:
-
-```gradle
-plugins {
-    id 'io.quarkus' version "3.6.4"
-    id 'com.mleitz1.quarkus.quarkus-build-helper'
-}
-```
 
 ## Native Build Configuration
 
@@ -87,18 +65,16 @@ This setup works out of the box! You can run:
 ./gradlew build
 ```
 
-This will build the helper plugin and all the subprojects. The native build will work if your environment is set up correctly with GraalVM or Mandrel.
+This will build all the subprojects. The native build will work if your environment is set up correctly with GraalVM or Mandrel.
 
-If you encounter any issues with your Quarkus build environment, the plugin will provide detailed diagnostic information to help you resolve them.
 
 ## Troubleshooting
 
 If you encounter issues with native builds:
 
-1. Run `./gradlew checkNativeEnvironment` to verify your environment setup
-2. Ensure you have GraalVM or Mandrel properly installed and configured
-3. Check that `native-image` is available in your PATH
-4. Review the detailed output from the build helper plugin tasks
+- Ensure you have GraalVM or Mandrel properly installed and configured
+- Check that `native-image` is available in your PATH
+- Review the Gradle build output for diagnostic details
 
 Common issues:
 - Incorrect JAVA_HOME setting
@@ -127,7 +103,6 @@ The `example-quarkus-native-basic` project demonstrates:
 
 - Minimal Quarkus reactive REST application
 - Native build configuration
-- Integration with the build helper plugin
 
 To run:
 

@@ -1,7 +1,6 @@
 plugins {
     id 'base'
     id 'java'
-    // Have to define these here but apply them in a separate line in the subprojects section
     id 'io.quarkus' version "${quarkusPluginVersion}" apply false
 }
 
@@ -44,7 +43,7 @@ subprojects {
     // Common configuration for Quarkus application subprojects only
     apply plugin: 'io.quarkus'
 
-    // Adding behavior to quarkus plugin's integration tests
+    // Additional configuration for Quarkus integration tests
     // ... rest of your Quarkus-specific configuration
     tasks.named('quarkusIntTest', Test) {
         // Integration tests should run after native build
